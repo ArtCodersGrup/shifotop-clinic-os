@@ -1,0 +1,2162 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShifoTop Clinic OS — Interaktiv prototip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   §7 DIZAYN TOKENLARI — ShifoTop Clinic OS
+   ============================================================ */
+:root{
+  --blue-700:#0B4FA8; --blue-600:#1668E3; --blue-500:#3B86F0;
+  --blue-100:#DBEAFE; --blue-50:#EFF6FF;
+  --ink-900:#0B1F3A; --ink-700:#2B3F5C; --ink-500:#64748B;
+  --ink-300:#CBD5E1; --ink-200:#E2E8F0; --ink-100:#F1F5F9;
+  --canvas:#F5F8FC; --surface:#FFFFFF;
+  --success:#15803D; --success-bg:#DCFCE7;
+  --warning:#B45309; --warning-bg:#FEF3C7;
+  --danger:#B91C1C;  --danger-bg:#FEE2E2;
+  --info:#0369A1;    --info-bg:#E0F2FE;
+  --teal:#0E7490;    --teal-bg:#CFFAFE;
+
+  --doc-1:#1668E3; --doc-2:#7C3AED; --doc-3:#0E7490; --doc-4:#B45309;
+  --doc-5:#BE185D; --doc-6:#15803D; --doc-7:#4338CA; --doc-8:#A16207;
+
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px;
+  --sp-6:24px; --sp-8:32px; --sp-12:48px; --sp-16:64px;
+
+  --r-input:10px; --r-card:14px; --r-modal:18px; --r-chip:999px; --r-tv:28px;
+
+  --e-1:0 1px 2px rgba(11,31,58,.06);
+  --e-2:0 4px 12px rgba(11,31,58,.08);
+  --e-3:0 24px 48px rgba(11,31,58,.18);
+
+  --ease-standard:cubic-bezier(.2,0,0,1);
+  --ease-enter:cubic-bezier(.25,.1,.25,1);
+  --ease-overshoot:cubic-bezier(.34,1.56,.64,1);
+  --dur-fast:120ms; --dur-base:200ms; --dur-enter:240ms; --dur-exit:160ms;
+
+  --font-ui:'Inter',system-ui,sans-serif;
+  --font-display:'Manrope','Inter',sans-serif;
+  --font-data:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-ui);background:#0F172A;color:var(--ink-900);
+  -webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+:focus-visible{outline:2px solid var(--blue-600);outline-offset:2px;border-radius:4px}
+.mono{font-family:var(--font-data);font-variant-numeric:tabular-nums}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* ============================================================
+   PROTOTIP QOBIG'I — navigator + sahna
+   ============================================================ */
+.shell{display:flex;height:100vh}
+
+/* --- Navigator --- */
+.nav{width:280px;flex:none;background:#0F172A;color:#CBD5E1;
+  display:flex;flex-direction:column;border-right:1px solid #1E293B}
+.nav__head{padding:20px 18px 14px;border-bottom:1px solid #1E293B}
+.nav__logo{font-family:var(--font-display);font-weight:800;font-size:15px;color:#fff;letter-spacing:-.01em}
+.nav__sub{font-size:11px;color:#64748B;margin-top:3px}
+.nav__scroll{flex:1;overflow-y:auto;padding:10px 10px 24px}
+.nav__group{margin-top:14px}
+.nav__group:first-child{margin-top:4px}
+.nav__gtitle{font-size:10px;font-weight:700;letter-spacing:.09em;color:#475569;
+  text-transform:uppercase;padding:6px 8px}
+.nav__item{display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+  padding:8px 9px;border-radius:8px;font-size:13px;color:#94A3B8;
+  transition:background var(--dur-fast) var(--ease-standard),color var(--dur-fast)}
+.nav__item:hover{background:#1E293B;color:#E2E8F0}
+.nav__item.is-active{background:var(--blue-600);color:#fff;font-weight:600}
+.nav__id{font-family:var(--font-data);font-size:10px;color:#475569;flex:none;width:38px}
+.nav__item.is-active .nav__id{color:#BFDBFE}
+.nav__label{flex:1;line-height:1.3}
+.nav__foot{padding:12px 16px;border-top:1px solid #1E293B;font-size:11px;color:#475569}
+
+/* --- Sahna --- */
+.stage{flex:1;background:#1E293B;position:relative;overflow:auto;
+  display:flex;align-items:flex-start;justify-content:center;padding:28px}
+.stage__inner{position:relative}
+.frame{background:var(--canvas);border-radius:10px;overflow:hidden;
+  box-shadow:0 24px 64px rgba(0,0,0,.45);transform-origin:top center}
+.frame--tv{background:var(--ink-900)}
+.caption{position:absolute;top:-22px;left:0;font-size:12px;color:#94A3B8;
+  font-weight:500;display:flex;gap:8px;align-items:center}
+.caption .mono{color:#64748B;font-size:11px}
+
+/* Holat almashtirgich (stage ustida) */
+.statebar{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
+  background:rgba(15,23,42,.94);backdrop-filter:blur(8px);border:1px solid #334155;
+  border-radius:var(--r-chip);padding:6px;display:flex;gap:4px;z-index:900;
+  box-shadow:0 12px 32px rgba(0,0,0,.4)}
+.statebar button{font-size:12px;padding:7px 13px;border-radius:var(--r-chip);
+  color:#94A3B8;font-weight:500;transition:all var(--dur-fast)}
+.statebar button:hover{background:#1E293B;color:#E2E8F0}
+.statebar button.is-active{background:#fff;color:var(--ink-900);font-weight:600}
+
+/* ============================================================
+   ILOVA — umumiy komponentlar
+   ============================================================ */
+.app{width:1440px;height:900px;display:flex;flex-direction:column;
+  background:var(--canvas);position:relative;overflow:hidden}
+
+/* TopBar */
+.topbar{height:64px;flex:none;background:var(--surface);box-shadow:var(--e-1);
+  display:flex;align-items:center;justify-content:space-between;padding:0 24px;
+  position:relative;z-index:30}
+.topbar__l{display:flex;align-items:center;gap:32px}
+.brand{font-family:var(--font-display);font-weight:700;font-size:16px;letter-spacing:-.01em}
+.tabs{display:flex;gap:4px}
+.tab{padding:8px 12px;border-radius:8px;font-size:14px;font-weight:500;color:var(--ink-500);
+  transition:background var(--dur-fast),color var(--dur-fast)}
+.tab:hover{background:var(--ink-100);color:var(--ink-700)}
+.tab.is-active{background:var(--blue-100);color:var(--blue-600);font-weight:600}
+.topbar__r{display:flex;align-items:center;gap:16px}
+
+/* ConnectionPill — SSE holati */
+.conn{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;
+  border-radius:var(--r-chip);font-size:12px;font-weight:500;border:1px solid;
+  transition:all var(--dur-base)}
+.conn__dot{width:8px;height:8px;border-radius:50%;flex:none}
+.conn--live{background:var(--success-bg);color:var(--success);border-color:var(--success)}
+.conn--live .conn__dot{background:var(--success);animation:pulseDot 2.4s infinite}
+.conn--recon{background:var(--warning-bg);color:var(--warning);border-color:var(--warning)}
+.conn--recon .conn__dot{background:var(--warning);animation:pulseDot .9s infinite}
+.conn--off{background:var(--danger-bg);color:var(--danger);border-color:var(--danger)}
+.conn--off .conn__dot{background:var(--danger)}
+@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.35}}
+
+.user{display:flex;align-items:center;gap:8px;padding:4px 6px 4px 4px;border-radius:var(--r-chip);
+  transition:background var(--dur-fast)}
+.user:hover{background:var(--ink-100)}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--blue-600);color:#fff;
+  display:grid;place-items:center;font-size:12px;font-weight:600;flex:none}
+.user__name{font-size:14px;font-weight:500}
+.caret{font-size:10px;color:var(--ink-500)}
+
+/* SubHeader */
+.subhead{height:48px;flex:none;background:var(--surface);border-bottom:1px solid var(--ink-200);
+  display:flex;align-items:center;justify-content:space-between;padding:0 24px;
+  position:relative;z-index:20}
+.subhead__l{display:flex;align-items:center;gap:12px}
+.today{font-size:14px;font-weight:500}
+
+/* Badge */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:var(--r-chip);
+  font-size:12px;font-weight:500}
+.badge--n{background:var(--ink-100);color:var(--ink-500)}
+.badge--t{background:var(--teal-bg);color:var(--teal)}
+.badge--w{background:var(--warning-bg);color:var(--warning)}
+.badge--s{background:var(--success-bg);color:var(--success)}
+.badge--d{background:var(--danger-bg);color:var(--danger)}
+.badge--i{background:var(--info-bg);color:var(--info)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:10px 16px;border-radius:var(--r-input);font-size:14px;font-weight:600;
+  transition:background var(--dur-fast),box-shadow var(--dur-fast),transform var(--dur-fast);
+  min-height:40px}
+.btn:active{transform:scale(.985)}
+.btn--p{background:var(--blue-600);color:#fff}
+.btn--p:hover{background:var(--blue-500)}
+.btn--s{background:var(--surface);color:var(--ink-700);border:1px solid var(--ink-200)}
+.btn--s:hover{background:var(--ink-100)}
+.btn--g{background:transparent;color:var(--blue-600);font-weight:500}
+.btn--g:hover{background:var(--blue-50)}
+.btn--d{background:var(--danger);color:#fff}
+.btn--hero{min-height:72px;font-size:20px;border-radius:var(--r-card);padding:0 40px}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.kbd{font-family:var(--font-data);font-size:11px;padding:2px 6px;border-radius:4px;
+  background:rgba(255,255,255,.2)}
+.kbd--l{background:var(--ink-100);color:var(--ink-500)}
+
+/* Chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:var(--r-chip);
+  font-size:13px;font-weight:500;background:var(--surface);border:1px solid var(--ink-200);
+  color:var(--ink-700);transition:all var(--dur-fast)}
+.chip:hover{border-color:var(--ink-300)}
+.chip.is-active{background:var(--ink-900);color:#fff;border-color:var(--ink-900)}
+.chip__n{padding:1px 6px;border-radius:var(--r-chip);background:var(--ink-100);
+  font-size:11px;font-weight:600;color:var(--ink-500)}
+.chip.is-active .chip__n{background:rgba(255,255,255,.25);color:#fff}
+
+/* ============================================================
+   S-10 — NAVBAT BOSHQARUVI
+   ============================================================ */
+.board{flex:1;display:flex;gap:16px;padding:20px 24px;overflow:hidden}
+.col{flex:1;min-width:0;background:var(--surface);border:1px solid var(--ink-200);
+  border-radius:var(--r-card);display:flex;flex-direction:column;overflow:hidden}
+.col__hd{display:flex;align-items:center;gap:10px;padding:14px 16px;
+  border-bottom:1px solid var(--ink-200)}
+.col__bar{width:4px;height:36px;border-radius:2px;flex:none}
+.col__info{min-width:0;flex:1}
+.col__name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.col__meta{font-size:12px;color:var(--ink-500);margin-top:2px}
+.col__pause{font-size:11px;font-weight:600;color:var(--warning);background:var(--warning-bg);
+  padding:3px 8px;border-radius:var(--r-chip)}
+.col__body{flex:1;overflow-y:auto;padding:4px 8px 8px}
+.slabel{font-size:11px;font-weight:600;letter-spacing:.5px;padding:10px 8px 4px}
+.slabel--ip{color:var(--teal)} .slabel--ca{color:var(--blue-600)} .slabel--w{color:var(--ink-500)}
+
+/* Navbat kartochkasi */
+.tk{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;
+  cursor:pointer;position:relative;transition:background var(--dur-fast)}
+.tk:hover{background:var(--ink-100)}
+.tk__code{font-family:var(--font-data);font-size:14px;font-weight:500;flex:none;
+  font-variant-numeric:tabular-nums}
+.tk__name{flex:1;font-size:14px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk__time{font-size:12px;color:var(--ink-500);flex:none}
+.tk--ip{background:var(--teal-bg);border-radius:var(--r-input)}
+.tk--ip .tk__code{color:var(--teal)} .tk--ip .tk__name{font-weight:600}
+.tk--ip:hover{background:#B9F3FA}
+.tk--ca{background:var(--blue-600);color:#fff;border-radius:var(--r-input);
+  animation:callPulse .6s var(--ease-overshoot) 3}
+.tk--ca .tk__code,.tk--ca .tk__name{color:#fff}
+.tk--ca .tk__name{font-weight:600}
+.tk--ca .tk__time{color:rgba(255,255,255,.75)}
+.tk--ca:hover{background:var(--blue-500)}
+.tk--noshow{opacity:.55}
+.tk--noshow .tk__name{text-decoration:line-through}
+@keyframes callPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+@media (prefers-reduced-motion:reduce){
+  .tk--ca{animation:none;box-shadow:0 0 0 3px var(--blue-100)}
+  .conn__dot{animation:none!important}
+}
+/* Hover amallari */
+.tk__acts{display:none;gap:4px;flex:none}
+.tk:hover .tk__acts{display:flex}
+.tk:hover .tk__time{display:none}
+.iconbtn{width:28px;height:28px;border-radius:6px;display:grid;place-items:center;
+  font-size:13px;background:var(--surface);border:1px solid var(--ink-200);color:var(--ink-700)}
+.iconbtn:hover{background:var(--blue-50);border-color:var(--blue-500);color:var(--blue-600)}
+.tk--ca .iconbtn,.tk--ip .iconbtn{background:rgba(255,255,255,.9)}
+
+/* Bo'sh holat */
+.empty{display:flex;flex-direction:column;align-items:center;gap:10px;
+  padding:56px 16px;text-align:center}
+.empty__ic{width:44px;height:44px;border-radius:12px;background:var(--ink-100);
+  display:grid;place-items:center;font-size:18px}
+.empty__t{font-size:14px;color:var(--ink-500)}
+.empty__s{font-size:12px;color:var(--ink-300)}
+
+/* Skeleton */
+.sk{background:linear-gradient(90deg,var(--ink-100) 25%,#E8EEF6 37%,var(--ink-100) 63%);
+  background-size:400% 100%;animation:shimmer 1.4s infinite;border-radius:6px}
+@keyframes shimmer{0%{background-position:100% 50%}100%{background-position:0 50%}}
+
+/* ============================================================
+   Overlay / Drawer / Modal / Menu
+   ============================================================ */
+.scrim{position:absolute;inset:0;background:rgba(11,31,58,.32);z-index:40;
+  animation:fadeIn var(--dur-enter) var(--ease-enter)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.drawer{position:absolute;top:0;right:0;bottom:0;width:480px;background:var(--surface);
+  box-shadow:var(--e-3);z-index:50;display:flex;flex-direction:column;
+  animation:slideIn var(--dur-enter) var(--ease-enter)}
+@keyframes slideIn{from{transform:translateX(24px);opacity:.4}to{transform:none;opacity:1}}
+.drawer__hd{display:flex;align-items:center;justify-content:space-between;
+  padding:20px 24px;border-bottom:1px solid var(--ink-200)}
+.drawer__ttl{font-size:18px;font-weight:600}
+.drawer__body{flex:1;overflow-y:auto;padding:16px 24px 24px;display:flex;flex-direction:column;gap:16px}
+.drawer__ft{padding:16px 24px 20px;border-top:1px solid var(--ink-200);background:var(--canvas);
+  display:flex;gap:12px}
+.drawer__ft .btn--p{flex:1}
+.x{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;
+  font-size:16px;color:var(--ink-500)}
+.x:hover{background:var(--ink-100);color:var(--ink-900)}
+
+/* Steps */
+.steps{display:flex;align-items:center;gap:8px;padding:20px 24px 0}
+.step{display:flex;align-items:center;gap:8px}
+.step__n{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;
+  font-size:12px;font-weight:600;background:var(--ink-200);color:var(--ink-500)}
+.step__l{font-size:14px;font-weight:500;color:var(--ink-500)}
+.step.is-active .step__n{background:var(--blue-600);color:#fff}
+.step.is-active .step__l{color:var(--ink-900);font-weight:600}
+.step.is-done .step__n{background:var(--success);color:#fff}
+.step__line{width:40px;height:2px;background:var(--ink-200);border-radius:1px}
+
+/* Form */
+.field{display:flex;flex-direction:column;gap:6px}
+.field__l{font-size:13px;font-weight:500;color:var(--ink-700)}
+.input{width:100%;padding:12px 14px;border-radius:var(--r-input);font-size:15px;
+  border:1px solid var(--ink-200);background:var(--surface);font-family:inherit;color:var(--ink-900);
+  transition:border-color var(--dur-fast),box-shadow var(--dur-fast)}
+.input:focus{outline:none;border-color:var(--blue-600);box-shadow:0 0 0 3px var(--blue-100)}
+.input.is-err{border-color:var(--danger);box-shadow:0 0 0 3px var(--danger-bg)}
+.field__h{font-size:12px;color:var(--ink-500)}
+.field__e{font-size:12px;color:var(--danger);font-weight:500;display:flex;gap:5px;align-items:center}
+
+.result{padding:14px 16px;border-radius:var(--r-card);background:var(--blue-50);
+  border:1px solid var(--blue-100)}
+.result__r{display:flex;align-items:center;gap:8px}
+.result__n{font-size:15px;font-weight:600;flex:1}
+.result__s{font-size:13px;color:var(--ink-500);margin-top:6px}
+.option{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:var(--r-card);
+  background:var(--surface);border:1px solid var(--ink-200);cursor:pointer;
+  transition:border-color var(--dur-fast),background var(--dur-fast)}
+.option:hover{border-color:var(--ink-300);background:var(--canvas)}
+.option.is-sel{border-color:var(--blue-600);border-width:2px;background:var(--blue-50)}
+.radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--ink-300);flex:none;
+  display:grid;place-items:center}
+.option.is-sel .radio{border-color:var(--blue-600)}
+.option.is-sel .radio::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--blue-600)}
+
+/* Doctor pick card */
+.dpick{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r-card);
+  background:var(--surface);border:1px solid var(--ink-200);cursor:pointer;
+  transition:border-color var(--dur-fast),background var(--dur-fast)}
+.dpick:hover{border-color:var(--ink-300);background:var(--canvas)}
+.dpick.is-sel{border-color:var(--blue-600);border-width:2px;background:var(--blue-50)}
+.dpick__sq{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;
+  font-family:var(--font-data);font-size:16px;font-weight:700;color:#fff;flex:none}
+.dpick__i{flex:1;min-width:0}
+.dpick__n{font-size:14px;font-weight:600}
+.dpick__m{font-size:12px;color:var(--ink-500);margin-top:2px}
+
+/* Selected chip */
+.selchip{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:var(--r-input);
+  background:var(--canvas);border:1px solid var(--ink-200);font-size:14px}
+.selchip__t{flex:1;font-weight:500}
+
+/* Menu */
+.menu{position:absolute;z-index:60;width:280px;background:var(--surface);
+  border:1px solid var(--ink-200);border-radius:var(--r-card);box-shadow:var(--e-3);
+  overflow:hidden;animation:menuIn var(--dur-enter) var(--ease-enter)}
+@keyframes menuIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.menu__hd{display:flex;gap:10px;align-items:center;padding:14px 16px;background:var(--canvas)}
+.menu__n{font-size:14px;font-weight:600}
+.menu__r{font-size:12px;color:var(--ink-500);margin-top:2px}
+.menu__sec{padding:12px}
+.menu__st{font-size:11px;font-weight:600;letter-spacing:.5px;color:var(--ink-500);
+  padding:0 4px 6px}
+.seg{display:flex;gap:2px;padding:3px;background:var(--ink-100);border-radius:var(--r-input)}
+.seg button{flex:1;padding:7px 8px;border-radius:8px;font-size:13px;font-weight:500;color:var(--ink-500)}
+.seg button.is-active{background:var(--surface);color:var(--ink-900);font-weight:600;box-shadow:var(--e-1)}
+.menu__item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 16px;
+  font-size:14px;font-weight:500;color:var(--ink-700);text-align:left}
+.menu__item:hover{background:var(--ink-100)}
+.menu__item span:first-child{flex:1}
+.menu__ref{font-family:var(--font-data);font-size:10px;color:var(--ink-300)}
+.menu__item--d{color:var(--danger)}
+.menu__item--d:hover{background:var(--danger-bg)}
+.hr{height:1px;background:var(--ink-200)}
+
+/* Modal */
+.modal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:60;
+  width:520px;background:var(--surface);border-radius:var(--r-modal);box-shadow:var(--e-3);
+  overflow:hidden;animation:modalIn var(--dur-enter) var(--ease-enter)}
+@keyframes modalIn{from{opacity:0;transform:translate(-50%,-46%) scale(.97)}
+  to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+.modal__hd{padding:20px 24px 0}
+.modal__ttl{font-size:18px;font-weight:600}
+.modal__sub{font-size:13px;color:var(--ink-500);margin-top:4px}
+.modal__body{padding:20px 24px;display:flex;flex-direction:column;gap:12px}
+.modal__ft{padding:16px 24px;background:var(--canvas);border-top:1px solid var(--ink-200);
+  display:flex;gap:12px;justify-content:flex-end}
+
+/* Outcome buttons */
+.outcome{display:flex;align-items:flex-start;gap:12px;padding:16px;border-radius:var(--r-card);
+  border:1px solid var(--ink-200);background:var(--surface);text-align:left;width:100%;
+  transition:all var(--dur-fast)}
+.outcome:hover{border-color:var(--ink-300);background:var(--canvas)}
+.outcome__ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;
+  font-size:16px;flex:none}
+.outcome__t{font-size:14px;font-weight:600}
+.outcome__d{font-size:12px;color:var(--ink-500);margin-top:3px;line-height:1.45}
+.outcome--ok:hover{border-color:var(--success)}
+.outcome--ok .outcome__ic{background:var(--success-bg);color:var(--success)}
+.outcome--warn:hover{border-color:var(--warning)}
+.outcome--warn .outcome__ic{background:var(--warning-bg);color:var(--warning)}
+.outcome--na:hover{border-color:var(--ink-500)}
+.outcome--na .outcome__ic{background:var(--ink-100);color:var(--ink-500)}
+
+/* Toast */
+.toast{position:absolute;right:24px;bottom:24px;z-index:70;display:flex;gap:10px;
+  align-items:flex-start;padding:14px 16px;border-radius:var(--r-card);background:var(--ink-900);
+  color:#fff;box-shadow:var(--e-3);max-width:380px;
+  animation:toastIn var(--dur-enter) var(--ease-overshoot)}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.toast__t{font-size:14px;font-weight:600}
+.toast__d{font-size:12px;color:#94A3B8;margin-top:3px}
+
+/* ============================================================
+   Umumiy sahifa layout (Bemorlar, Qo'ng'iroqlar, h.k.)
+   ============================================================ */
+.page{flex:1;padding:20px 24px;display:flex;flex-direction:column;gap:16px;overflow:hidden}
+.page__hd{display:flex;align-items:center;gap:16px}
+.page__ttl{font-size:24px;font-weight:700;font-family:var(--font-display);letter-spacing:-.01em}
+.page__sub{font-size:13px;color:var(--ink-500);margin-top:2px}
+.spacer{flex:1}
+
+.search{display:flex;align-items:center;gap:8px;width:340px;padding:11px 14px;
+  border-radius:var(--r-input);background:var(--surface);border:1px solid var(--ink-200)}
+.search input{flex:1;border:none;outline:none;font:inherit;font-size:14px;background:none}
+.search input::placeholder{color:var(--ink-500)}
+
+/* Table */
+.tbl{flex:1;background:var(--surface);border:1px solid var(--ink-200);border-radius:var(--r-card);
+  overflow:hidden;display:flex;flex-direction:column}
+.tbl__hd,.tbl__row{display:grid;align-items:center;gap:16px;padding:0 20px}
+.tbl__hd{background:var(--canvas);border-bottom:1px solid var(--ink-200);height:44px;
+  font-size:12px;font-weight:600;color:var(--ink-500);letter-spacing:.3px}
+.tbl__body{flex:1;overflow-y:auto}
+.tbl__row{height:52px;border-bottom:1px solid var(--ink-200);font-size:14px;cursor:pointer;
+  transition:background var(--dur-fast)}
+.tbl__row:nth-child(even){background:#FCFDFE}
+.tbl__row:hover{background:var(--blue-50)}
+.tbl__row:last-child{border-bottom:none}
+.cell--strong{font-weight:600}
+.cell--r{text-align:right}
+.cell--sub{color:var(--ink-500)}
+
+/* Call cards */
+.calls{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-right:2px}
+.call{display:flex;align-items:center;gap:16px;padding:16px 20px;background:var(--surface);
+  border:1px solid var(--ink-200);border-radius:var(--r-card)}
+.call.is-due{border-color:var(--blue-100);border-width:2px;padding:15px 19px}
+.call__i{flex:1;min-width:0}
+.call__r1{display:flex;align-items:center;gap:10px}
+.call__n{font-size:16px;font-weight:600}
+.call__ph{font-family:var(--font-data);font-size:13px;color:var(--ink-500)}
+.call__r2{font-size:13px;color:var(--ink-500);margin-top:4px}
+
+/* Progress */
+.prog{width:280px;padding:12px 16px;background:var(--surface);border:1px solid var(--ink-200);
+  border-radius:var(--r-card)}
+.prog__r{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px}
+.prog__bar{height:6px;border-radius:var(--r-chip);background:var(--ink-100);overflow:hidden}
+.prog__fill{height:100%;border-radius:var(--r-chip);background:var(--success);
+  transition:width var(--dur-base) var(--ease-standard)}
+
+/* ============================================================
+   S-20 — SHIFOKOR EKRANI
+   ============================================================ */
+.doc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:24px;padding:40px}
+.doc__now{width:520px;padding:32px;background:var(--surface);border:1px solid var(--ink-200);
+  border-radius:var(--r-card);text-align:center;box-shadow:var(--e-1)}
+.doc__code{font-family:var(--font-display);font-size:96px;font-weight:800;line-height:1;
+  letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.doc__name{font-size:22px;font-weight:600;margin-top:12px}
+.doc__meta{font-size:14px;color:var(--ink-500);margin-top:6px}
+.doc__acts{display:flex;gap:12px;justify-content:center;margin-top:24px}
+.doc__next{font-size:14px;color:var(--ink-500)}
+.doc__q{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--ink-500)}
+.doc__q .mono{font-size:13px;color:var(--ink-700);font-weight:500}
+
+/* ============================================================
+   S-50 — TV DISPLAY
+   ============================================================ */
+.tv{width:1920px;height:1080px;background:var(--ink-900);color:#F2F7FF;
+  display:flex;flex-direction:column;padding:64px;font-family:var(--font-display)}
+.tv__main{flex:1;display:flex;gap:56px;min-height:0}
+.tv__l{flex:1.62;display:flex;flex-direction:column;gap:28px;min-width:0}
+.tv__r{flex:1;display:flex;flex-direction:column;gap:24px;min-width:0}
+.tv__lbl{font-size:28px;font-weight:700;letter-spacing:.14em;color:#64789B;
+  text-transform:uppercase;font-family:var(--font-ui)}
+.tvcard{display:flex;align-items:center;gap:36px;padding:40px 44px;border-radius:var(--r-tv);
+  background:#132845;border-left:14px solid var(--doc-1)}
+.tvcard--hero{padding:56px 48px}
+.tvcard--hero .tvcard__code{font-size:200px}
+.tvcard__code{font-size:120px;font-weight:800;line-height:.92;letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums;flex:none}
+.tvcard__i{flex:1;min-width:0}
+.tvcard__room{font-size:76px;font-weight:800;line-height:1.05;letter-spacing:-.01em}
+.tvcard--hero .tvcard__room{font-size:96px}
+.tvcard__doc{font-size:34px;font-weight:600;color:#9DB4D4;margin-top:10px}
+.tvcard.is-calling{animation:tvPulse .6s var(--ease-overshoot) 3}
+@keyframes tvPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.015)}}
+.tvnext{display:flex;align-items:center;gap:24px;padding:22px 28px;border-radius:20px;
+  background:rgba(255,255,255,.045);border-left:8px solid var(--doc-1)}
+.tvnext__code{font-size:56px;font-weight:800;font-variant-numeric:tabular-nums;flex:none}
+.tvnext__d{font-size:26px;color:#8FA6C6;font-weight:600;font-family:var(--font-ui)}
+.tv__ft{height:96px;flex:none;display:flex;align-items:center;justify-content:space-between;
+  border-top:1px solid rgba(255,255,255,.09);margin-top:40px;font-family:var(--font-ui)}
+.tv__brand{font-family:var(--font-display);font-size:34px;font-weight:800}
+.tv__note{font-size:26px;color:#8FA6C6}
+.tv__time{font-size:38px;font-weight:700;font-variant-numeric:tabular-nums}
+.tv__empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
+.tv__empty h2{font-size:72px;font-weight:800}
+.tv__empty p{font-size:32px;color:#8FA6C6;font-family:var(--font-ui)}
+
+/* Pairing */
+.pair{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;
+  font-family:var(--font-ui)}
+.pair__code{font-family:var(--font-data);font-size:120px;font-weight:700;letter-spacing:.16em;
+  color:#F2F7FF;padding:32px 48px;border:3px dashed #2E4A73;border-radius:var(--r-tv)}
+.pair__steps{display:flex;gap:40px;margin-top:12px}
+.pair__step{width:280px;text-align:center;color:#8FA6C6;font-size:20px;line-height:1.5}
+.pair__num{width:44px;height:44px;border-radius:50%;background:#1D3557;color:#fff;
+  display:grid;place-items:center;font-weight:700;margin:0 auto 12px;font-size:20px}
+
+/* ============================================================
+   S-00 LOGIN
+   ============================================================ */
+.login{flex:1;display:grid;place-items:center;background:var(--canvas)}
+.login__card{width:420px;padding:40px;background:var(--surface);border-radius:var(--r-modal);
+  box-shadow:var(--e-2);border:1px solid var(--ink-200)}
+.login__brand{font-family:var(--font-display);font-size:24px;font-weight:800;text-align:center}
+.login__sub{font-size:14px;color:var(--ink-500);text-align:center;margin-top:6px;margin-bottom:28px}
+.login__f{display:flex;flex-direction:column;gap:16px}
+
+/* ============================================================
+   Holat ekranlari
+   ============================================================ */
+.state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;text-align:center;padding:40px}
+.state__ic{width:72px;height:72px;border-radius:20px;display:grid;place-items:center;font-size:30px}
+.state__t{font-size:24px;font-weight:700;font-family:var(--font-display)}
+.state__d{font-size:15px;color:var(--ink-500);max-width:420px;line-height:1.55}
+
+/* ============================================================
+   Qabul yozuvi / Kassa / Profil komponentlari
+   ============================================================ */
+/* Ikki ustunli ish maydoni */
+.split{flex:1;display:flex;gap:16px;min-height:0}
+.pane{background:var(--surface);border:1px solid var(--ink-200);border-radius:var(--r-card);
+  display:flex;flex-direction:column;overflow:hidden}
+.pane__hd{padding:16px 20px;border-bottom:1px solid var(--ink-200);display:flex;
+  align-items:center;justify-content:space-between}
+.pane__t{font-size:15px;font-weight:600}
+.pane__b{flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:16px}
+.pane__ft{padding:14px 20px;border-top:1px solid var(--ink-200);background:var(--canvas);
+  display:flex;gap:10px;align-items:center}
+
+.ta{width:100%;padding:12px 14px;border-radius:var(--r-input);border:1px solid var(--ink-200);
+  font:inherit;font-size:14px;resize:none;min-height:84px;line-height:1.55;color:var(--ink-900)}
+.ta:focus{outline:none;border-color:var(--blue-600);box-shadow:0 0 0 3px var(--blue-100)}
+
+/* Xizmat tanlagich */
+.srv{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--r-input);
+  border:1px solid var(--ink-200);background:var(--surface);cursor:pointer;
+  transition:border-color var(--dur-fast),background var(--dur-fast)}
+.srv:hover{border-color:var(--ink-300);background:var(--canvas)}
+.srv.is-sel{border-color:var(--blue-600);background:var(--blue-50)}
+.cbx{width:20px;height:20px;border-radius:6px;border:2px solid var(--ink-300);flex:none;
+  display:grid;place-items:center;font-size:12px;color:#fff;background:var(--surface)}
+.srv.is-sel .cbx{background:var(--blue-600);border-color:var(--blue-600)}
+.srv__n{flex:1;font-size:14px;font-weight:500}
+.srv__p{font-family:var(--font-data);font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}
+
+/* Jami summa */
+.total{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;
+  border-radius:var(--r-card);background:var(--ink-900);color:#fff}
+.total__l{font-size:14px;color:#94A3B8}
+.total__v{font-family:var(--font-data);font-size:24px;font-weight:700;
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+
+/* Qayta ko'rik bloki */
+.recheck{border:1px solid var(--ink-200);border-radius:var(--r-card);overflow:hidden}
+.recheck__hd{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;
+  background:var(--surface);transition:background var(--dur-fast)}
+.recheck__hd:hover{background:var(--canvas)}
+.recheck.is-on .recheck__hd{background:var(--blue-50);border-bottom:1px solid var(--blue-100)}
+.recheck__t{flex:1;font-size:14px;font-weight:600}
+.recheck__s{font-size:12px;color:var(--ink-500);margin-top:2px;font-weight:400}
+.recheck__b{padding:16px;display:flex;flex-direction:column;gap:14px;background:var(--blue-50)}
+.presets{display:flex;gap:8px;flex-wrap:wrap}
+.preset{padding:8px 14px;border-radius:var(--r-chip);font-size:13px;font-weight:500;
+  background:var(--surface);border:1px solid var(--ink-200);color:var(--ink-700)}
+.preset:hover{border-color:var(--blue-500)}
+.preset.is-active{background:var(--blue-600);color:#fff;border-color:var(--blue-600)}
+.datebox{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:var(--r-input);
+  background:var(--surface);border:1px solid var(--blue-100)}
+.datebox__d{font-family:var(--font-display);font-size:22px;font-weight:800;letter-spacing:-.01em}
+.datebox__m{font-size:12px;color:var(--ink-500);margin-top:2px}
+.note{display:flex;gap:10px;padding:12px 14px;border-radius:var(--r-input);
+  background:var(--info-bg);font-size:12px;color:var(--info);line-height:1.55}
+
+/* Vaqt slotlari */
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.slot{padding:11px 6px;border-radius:var(--r-input);font-family:var(--font-data);font-size:14px;
+  font-weight:500;background:var(--surface);border:1px solid var(--ink-200);color:var(--ink-700)}
+.slot:hover{border-color:var(--blue-500);background:var(--blue-50)}
+.slot.is-sel{background:var(--blue-600);color:#fff;border-color:var(--blue-600)}
+.slot.is-busy{background:var(--ink-100);color:var(--ink-300);pointer-events:none;
+  text-decoration:line-through}
+
+/* To'lov usullari */
+.pms{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pm{padding:16px 12px;border-radius:var(--r-card);border:1px solid var(--ink-200);
+  background:var(--surface);text-align:center;transition:all var(--dur-fast)}
+.pm:hover{border-color:var(--ink-300)}
+.pm.is-sel{border-color:var(--blue-600);border-width:2px;background:var(--blue-50);padding:15px 11px}
+.pm__ic{font-size:22px}
+.pm__t{font-size:13px;font-weight:600;margin-top:6px}
+.pm__s{font-size:11px;color:var(--ink-500);margin-top:2px}
+
+/* Chek ko'rinishi */
+.receipt{width:280px;padding:20px 18px;background:#fff;border:1px solid var(--ink-200);
+  border-radius:8px;font-family:var(--font-data);font-size:12px;line-height:1.7;color:var(--ink-900)}
+.receipt__c{text-align:center}
+.receipt__hr{border-top:1px dashed var(--ink-300);margin:10px 0}
+.receipt__big{font-size:34px;font-weight:700;letter-spacing:.08em;text-align:center;margin:6px 0}
+.receipt__row{display:flex;justify-content:space-between;gap:10px}
+
+/* Smena */
+.shiftbar{display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:var(--r-card);
+  background:var(--success-bg);border:1px solid var(--success)}
+.shiftbar__t{flex:1;font-size:13px;color:var(--success);font-weight:600}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi{padding:16px 18px;background:var(--surface);border:1px solid var(--ink-200);
+  border-radius:var(--r-card)}
+.kpi__l{font-size:12px;color:var(--ink-500);font-weight:500}
+.kpi__v{font-family:var(--font-display);font-size:26px;font-weight:800;margin-top:6px;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.kpi__d{font-size:11px;color:var(--ink-500);margin-top:4px}
+
+/* Profil */
+.prof{display:flex;gap:16px;flex:1;min-height:0}
+.prof__side{width:300px;flex:none;display:flex;flex-direction:column;gap:12px}
+.prof__card{padding:24px;background:var(--surface);border:1px solid var(--ink-200);
+  border-radius:var(--r-card);text-align:center}
+.prof__nav{background:var(--surface);border:1px solid var(--ink-200);border-radius:var(--r-card);
+  padding:6px;display:flex;flex-direction:column;gap:2px}
+.prof__ni{padding:10px 14px;border-radius:8px;font-size:14px;font-weight:500;color:var(--ink-700);
+  text-align:left}
+.prof__ni:hover{background:var(--ink-100)}
+.prof__ni.is-active{background:var(--blue-50);color:var(--blue-600);font-weight:600}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.kv{display:flex;justify-content:space-between;padding:10px 0;font-size:14px;
+  border-bottom:1px solid var(--ink-200)}
+.kv:last-child{border-bottom:none}
+.kv__k{color:var(--ink-500)}
+.kv__v{font-weight:500}
+
+/* Tabs (sahifa ichida) */
+.ptabs{display:flex;gap:2px;padding:3px;background:var(--ink-100);border-radius:var(--r-input);
+  align-self:flex-start}
+.ptab{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;color:var(--ink-500)}
+.ptab.is-active{background:var(--surface);color:var(--ink-900);font-weight:600;box-shadow:var(--e-1)}
+.ptab__n{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:var(--r-chip);
+  background:var(--ink-200);font-size:11px;font-weight:600}
+.ptab.is-active .ptab__n{background:var(--blue-100);color:var(--blue-600)}
+
+/* Oldindan yozuv belgisi navbat kartochkasida */
+.tk__bk{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;
+  background:var(--info-bg);color:var(--info);flex:none}
+
+.flow{width:1440px;background:var(--canvas);padding:40px 48px;display:flex;
+  flex-direction:column;gap:28px}
+.flow__h1{font-size:28px;font-weight:800;font-family:var(--font-display);letter-spacing:-.02em}
+.flow__sub{font-size:14px;color:var(--ink-500);margin-top:6px;max-width:760px;line-height:1.6}
+.lane{display:flex;gap:14px;align-items:stretch}
+.lane__t{width:150px;flex:none;font-size:12px;font-weight:700;letter-spacing:.06em;
+  color:var(--ink-500);text-transform:uppercase;padding-top:18px}
+.lane__s{flex:1;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.fnode{padding:12px 14px;border-radius:var(--r-input);background:var(--surface);
+  border:1px solid var(--ink-200);min-width:150px;cursor:pointer;
+  transition:border-color var(--dur-fast),box-shadow var(--dur-fast),transform var(--dur-fast)}
+.fnode:hover{border-color:var(--blue-600);box-shadow:var(--e-2);transform:translateY(-1px)}
+.fnode__id{font-family:var(--font-data);font-size:10px;color:var(--ink-300)}
+.fnode__t{font-size:13px;font-weight:600;margin-top:3px}
+.fnode__d{font-size:11px;color:var(--ink-500);margin-top:3px;line-height:1.4}
+.fnode--done{border-left:3px solid var(--success)}
+.fnode--todo{border-left:3px solid var(--ink-300);opacity:.75}
+.arr{color:var(--ink-300);font-size:16px;flex:none}
+.legend{display:flex;gap:20px;font-size:12px;color:var(--ink-500);align-items:center}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:block}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- ===== NAVIGATOR ===== -->
+  <aside class="nav">
+    <div class="nav__head">
+      <div class="nav__logo">ShifoTop Clinic OS</div>
+      <div class="nav__sub">Interaktiv prototip · Faza 1</div>
+    </div>
+    <div class="nav__scroll" id="navList"></div>
+    <div class="nav__foot">Ekranlarni bosib ko'ring — ichidagi tugmalar ham ishlaydi</div>
+  </aside>
+
+  <!-- ===== SAHNA ===== -->
+  <main class="stage" id="stage">
+    <div class="stage__inner">
+      <div class="caption" id="caption"></div>
+      <div class="frame" id="frame"></div>
+    </div>
+  </main>
+</div>
+
+<div class="statebar" id="statebar"></div>
+
+<script>
+/* ==========================================================
+   MA'LUMOTLAR
+   ========================================================== */
+const DOCTORS = [
+  {p:'K', name:'Karimov A.',  spec:'Kardiolog',  color:'var(--doc-1)', room:'2-kabinet'},
+  {p:'S', name:'Saidova N.',  spec:'Stomatolog', color:'var(--doc-2)', room:'5-kabinet'},
+  {p:'T', name:"To'rayev B.", spec:'Terapevt',   color:'var(--doc-3)', room:'3-kabinet'},
+  {p:'U', name:'Usmonova D.', spec:'UZI',        color:'var(--doc-4)', room:'7-kabinet', paused:true},
+];
+
+const QUEUE = {
+  K:[ {c:'K-09',n:'Aliyev Anvar',t:'12:04',s:'ip'},
+      {c:'K-10',n:'Rahimova Malika',t:'12:18',s:'w'},
+      {c:'K-11',n:'Sobirov Temur',t:'10:30',s:'w',bk:'Qayta ko\'rik'},
+      {c:'K-12',n:'Karimova Sevara',t:'12:31',s:'w'},
+      {c:'K-13',n:'Toshev Doston',t:'12:40',s:'w'} ],
+  S:[ {c:'S-07',n:'Yusupov Muhammad',t:'11:55',s:'ca'},
+      {c:'S-06',n:'Halimov Jasur',t:'11:40',s:'ns'},
+      {c:'S-08',n:'Nazarov Bekzod',t:'12:10',s:'w'},
+      {c:'S-09',n:'Olimova Gulnora',t:'12:22',s:'w'},
+      {c:'S-10',n:'Ismoilov Kamol',t:'12:38',s:'w'} ],
+  T:[ {c:'T-11',n:'Qodirov Sardor',t:'09:12',s:'ip'},
+      {c:'T-12',n:'Ergashev Vohid',t:'12:05',s:'w'},
+      {c:'T-13',n:"Yo'ldoshev Rustam",t:'12:15',s:'w'},
+      {c:'T-14',n:'Sattorov Aziz',t:'12:28',s:'w'},
+      {c:'T-15',n:'Nabiyev Farrux',t:'12:35',s:'w'} ],
+  U:[]
+};
+
+const PATIENTS = [
+  ['Aliyev Anvar','+998 90 123-45-67','34','Bugun · 12:04','Dr. Karimov A.','7'],
+  ['Rahimova Malika','+998 93 456-78-90','28','Bugun · 12:18','Dr. Karimov A.','3'],
+  ['Yusupov Muhammad','+998 91 234-56-78','45','Bugun · 11:55','Dr. Saidova N.','12'],
+  ['Qodirov Sardor','+998 94 567-89-01','52','Bugun · 09:12',"Dr. To'rayev B.",'5'],
+  ['Nazarov Bekzod','+998 97 678-90-12','19','12-avgust','Dr. Saidova N.','2'],
+  ['Olimova Gulnora','+998 90 789-01-23','61','10-avgust','Dr. Saidova N.','9'],
+  ['Ergashev Vohid','+998 88 890-12-34','37','08-avgust',"Dr. To'rayev B.",'4'],
+  ['Sobirov Temur','+998 99 901-23-45','41','05-avgust','Dr. Karimov A.','6'],
+  ['Karimova Sevara','+998 95 012-34-56','25','01-avgust','Dr. Karimov A.','1'],
+];
+
+const CALLS = [
+  {n:'Aliyev Anvar',ph:'+998 90 123-45-67',dx:'Angina · 7 kun oldin',dr:'Dr. Karimov A.',s:'due',att:0},
+  {n:'Rahimova Malika',ph:'+998 93 456-78-90',dx:'Bronxit · 7 kun oldin',dr:'Dr. Karimov A.',s:'due',att:0},
+  {n:'Nazarov Bekzod',ph:'+998 97 678-90-12',dx:'Tish plombasi · 5 kun',dr:'Dr. Saidova N.',s:'noans',att:2},
+  {n:'Olimova Gulnora',ph:'+998 90 789-01-23',dx:'Gastrit · 10 kun oldin',dr:"Dr. To'rayev B.",s:'done',att:1},
+  {n:'Ergashev Vohid',ph:'+998 88 890-12-34',dx:'Allergiya · 7 kun',dr:"Dr. To'rayev B.",s:'esc',att:1},
+];
+
+/* Qayta ko'rik tasdiqlash qo'ng'iroqlari — shifokor belgilagan sanadan 1 kun oldin */
+const CONFIRMS = [
+  {n:'Sobirov Temur',ph:'+998 99 901-23-45',date:'15-avgust, shanba',dr:'Dr. Karimov A.',
+   reason:'Bosim nazorati',s:'due',slot:null},
+  {n:'Ismoilov Kamol',ph:'+998 91 555-22-11',date:'15-avgust, shanba',dr:'Dr. Saidova N.',
+   reason:'Plomba tekshiruvi',s:'due',slot:null},
+  {n:'Toshev Doston',ph:'+998 94 333-77-88',date:'15-avgust, shanba',dr:"Dr. To'rayev B.",
+   reason:'Tahlil natijasi',s:'ok',slot:'10:00'},
+  {n:'Karimova Sevara',ph:'+998 95 012-34-56',date:'15-avgust, shanba',dr:'Dr. Karimov A.',
+   reason:'Takroriy ko\'rik',s:'moved',slot:'18-avgust'},
+  {n:'Halimov Jasur',ph:'+998 90 444-66-99',date:'15-avgust, shanba',dr:'Dr. Saidova N.',
+   reason:'Kanal davolash 2-bosqich',s:'noans',slot:null},
+];
+
+/* Xizmatlar va narxlar */
+const SERVICES = [
+  {id:1, n:'Kardiolog konsultatsiyasi', p:80000, sel:true},
+  {id:2, n:'EKG (elektrokardiogramma)', p:120000, sel:true},
+  {id:3, n:'Qon bosimi sutkalik monitoringi', p:180000, sel:false},
+  {id:4, n:'EXO-kardiografiya', p:250000, sel:false},
+  {id:5, n:'Takroriy ko\'rik (30 kun ichida)', p:0, sel:false},
+];
+
+/* Kassa — to'lanmagan hisoblar */
+const INVOICES = [
+  {c:'K-09',n:'Aliyev Anvar',dr:'Dr. Karimov A.',t:'12:58',sum:200000,s:'pending',
+   items:[['Kardiolog konsultatsiyasi',80000],['EKG',120000]]},
+  {c:'T-11',n:'Qodirov Sardor',dr:"Dr. To'rayev B.",t:'12:41',sum:150000,s:'pending',
+   items:[['Terapevt konsultatsiyasi',90000],['Umumiy qon tahlili',60000]]},
+  {c:'S-06',n:'Halimov Jasur',dr:'Dr. Saidova N.',t:'11:52',sum:340000,s:'pending',
+   items:[['Stomatolog konsultatsiyasi',70000],['Plomba (svetovaya)',270000]]},
+  {c:'K-08',n:'Yo\'ldoshev Rustam',dr:'Dr. Karimov A.',t:'11:20',sum:80000,s:'paid',
+   items:[['Kardiolog konsultatsiyasi',80000]], pm:'Naqd'},
+  {c:'S-05',n:'Nazarov Bekzod',dr:'Dr. Saidova N.',t:'10:47',sum:190000,s:'paid',
+   items:[['Stomatolog konsultatsiyasi',70000],['Rentgen',120000]], pm:'Karta'},
+  {c:'T-09',n:'Ergashev Vohid',dr:"Dr. To'rayev B.",t:'10:15',sum:90000,s:'paid',
+   items:[['Terapevt konsultatsiyasi',90000]], pm:'ShifoTop'},
+];
+const money = v => v.toLocaleString('ru-RU').replace(/,/g,' ');
+
+/* ==========================================================
+   HOLAT
+   ========================================================== */
+const S = {
+  screen:'flow',
+  tab:'navbat',
+  overlay:null,      // newticket | ticket | menu | outcome | confirm
+  step:1,
+  conn:'live',       // live | recon | off
+  variant:'default', // default | loading | empty | offline
+  toast:null,
+};
+
+/* ==========================================================
+   NAVIGATOR TUZILISHI
+   ========================================================== */
+const NAV = [
+  {g:'Boshlanish', items:[
+    {id:'flow', ref:'—',    label:'Oqim xaritasi'},
+    {id:'s00',  ref:'S-00', label:'Kirish (Login)'},
+  ]},
+  {g:'Registratura', items:[
+    {id:'s10',  ref:'S-10', label:'Navbat boshqaruvi'},
+    {id:'s11a', ref:'S-11a',label:'Yangi navbat — 1-qadam'},
+    {id:'s11b', ref:'S-11b',label:'Yangi navbat — 2-qadam'},
+    {id:'s12',  ref:'S-12', label:'Navbat kartochkasi'},
+    {id:'s10c', ref:'S-10c',label:'Foydalanuvchi menyusi'},
+    {id:'s13',  ref:'S-13', label:'Bemorlar bazasi'},
+    {id:'s14',  ref:'S-14', label:'Bemor kartasi'},
+  ]},
+  {g:"Qo'ng'iroqlar", items:[
+    {id:'s15',  ref:'S-15', label:'Qayta aloqa (davolash natijasi)'},
+    {id:'s16',  ref:'S-16', label:'Natija belgilash modali'},
+    {id:'s17',  ref:'S-17', label:"Qayta ko'rik tasdiqlash"},
+    {id:'s17b', ref:'S-17b',label:'Tasdiqlash + vaqt tanlash'},
+  ]},
+  {g:'Shifokor', items:[
+    {id:'s20',  ref:'S-20', label:'Mening navbatim'},
+    {id:'s20b', ref:'S-20b',label:'Qayta chaqirish (2/2)'},
+    {id:'s21',  ref:'S-21', label:"Qabul yozuvi · narx · qayta ko'rik"},
+  ]},
+  {g:'Kassa', items:[
+    {id:'s30',  ref:'S-30', label:'Hisoblar ro\'yxati'},
+    {id:'s31',  ref:'S-31', label:"To'lovni qabul qilish"},
+    {id:'s32',  ref:'S-32', label:'Smenani yopish'},
+  ]},
+  {g:'Profil', items:[
+    {id:'s43',  ref:'S-43', label:'Mening profilim'},
+  ]},
+  {g:'Kutish zali (TV)', items:[
+    {id:'s50',  ref:'S-50', label:'TV navbat ekrani'},
+    {id:'s50b', ref:'S-50b',label:"TV — navbat bo'sh"},
+    {id:'s51',  ref:'S-51', label:'TV ekranni ulash'},
+  ]},
+  {g:'Chekli holatlar', items:[
+    {id:'st-load', ref:'—', label:'Yuklanmoqda (skeleton)'},
+    {id:'st-off',  ref:'—', label:'Aloqa uzildi'},
+    {id:'st-403',  ref:'S-02', label:'Ruxsat yo\'q (403)'},
+    {id:'st-err',  ref:'S-02', label:'Xatolik + qayta urinish'},
+  ]},
+];
+
+/* ==========================================================
+   YORDAMCHI
+   ========================================================== */
+const h = (s) => s;
+const CONN = {
+  live:{cls:'conn--live', txt:'Jonli'},
+  recon:{cls:'conn--recon', txt:'Qayta ulanmoqda'},
+  off:{cls:'conn--off', txt:'Aloqa yo\'q · 14:32'},
+};
+function connPill(){
+  const c = CONN[S.conn];
+  return `<button class="conn ${c.cls}" onclick="cycleConn()" title="Bosib holatlarni ko'ring">
+    <i class="conn__dot"></i>${c.txt}</button>`;
+}
+function cycleConn(){
+  S.conn = S.conn==='live' ? 'recon' : S.conn==='recon' ? 'off' : 'live';
+  render();
+}
+const TABSETS = {
+  reception:[['navbat','Navbat','s10'],['bemorlar','Bemorlar','s13'],['calls',"Qo'ng'iroqlar",'s15']],
+  cashier:[['kassa','Kassa','s30'],['smena','Smena','s32'],['bemorlar','Bemorlar','s13']],
+};
+function topbar(active, role){
+  role = role || 'reception';
+  const isCash = role==='cashier';
+  return `<header class="topbar">
+    <div class="topbar__l">
+      <div class="brand">ShifoTop OS</div>
+      <nav class="tabs">
+        ${TABSETS[role].map(([k,l,g])=>
+          `<button class="tab ${active===k?'is-active':''}" onclick="go('${g}')">${l}</button>`).join('')}
+      </nav>
+    </div>
+    <div class="topbar__r">
+      ${connPill()}
+      <button class="user" onclick="toggleMenu()">
+        <span class="avatar" ${isCash?'style="background:var(--doc-6)"':''}>${isCash?'DK':'AA'}</span>
+        <span class="user__name">${isCash?'Dilnoza K.':'Anora A.'}</span>
+        <span class="caret">▼</span>
+      </button>
+    </div>
+  </header>`;
+}
+const SL = {ip:['QABULDA','slabel--ip'], ca:['CHAQIRILDI','slabel--ca'],
+            w:['KUTMOQDA','slabel--w'], ns:['KELMADI','slabel--w']};
+
+/* ==========================================================
+   EKRANLAR
+   ========================================================== */
+
+/* ---------- Oqim xaritasi ---------- */
+function scFlow(){
+  const lane=(t,nodes)=>`<div class="lane"><div class="lane__t">${t}</div>
+    <div class="lane__s">${nodes.map((n,i)=>
+      (i?'<span class="arr">→</span>':'')+
+      `<button class="fnode fnode--${n.st}" onclick="go('${n.go}')">
+        <div class="fnode__id">${n.id}</div>
+        <div class="fnode__t">${n.t}</div>
+        <div class="fnode__d">${n.d}</div></button>`).join('')}</div></div>`;
+  return `<div class="flow">
+    <div>
+      <div class="flow__h1">Bemorning bir kunlik yo'li</div>
+      <div class="flow__sub">Har bir qadam — alohida ekran. Quyidagi kartani bosib
+        o'sha ekranga o'ting. Yashil chiziq — Figma'da ham qurilgan.</div>
+    </div>
+    ${lane('1 · Kirish',[
+      {id:'S-00',t:'Login',d:'Telefon + parol',go:'s00',st:'todo'},
+    ])}
+    ${lane('2 · Registratura',[
+      {id:'S-10',t:'Navbat boshqaruvi',d:'Kun bo\'yi ochiq ekran',go:'s10',st:'done'},
+      {id:'S-11a',t:'Bemorni topish',d:'Telefon → profil',go:'s11a',st:'done'},
+      {id:'S-11b',t:'Shifokor tanlash',d:'Navbat raqami beriladi',go:'s11b',st:'done'},
+    ])}
+    ${lane('3 · Bemor',[
+      {id:'C',t:'Chek chiqadi',d:'K-14 · 2-kabinet',go:'s12',st:'todo'},
+      {id:'D',t:'SMS keladi',d:'Navbat: K-14. Hozir: K-9',go:'s12',st:'todo'},
+      {id:'S-50',t:'TV ekran',d:'Kutish zalida kuzatadi',go:'s50',st:'todo'},
+    ])}
+    ${lane('4 · Shifokor',[
+      {id:'S-20',t:'Keyingi bemor',d:'Bitta katta tugma',go:'s20',st:'todo'},
+      {id:'S-21',t:'Qabul yozuvi',d:'Xizmat + narx + qayta ko\'rik sanasi',go:'s21',st:'todo'},
+    ])}
+    ${lane('5 · Kassa',[
+      {id:'S-30',t:'Hisob avtomatik keldi',d:'Kassir hisoblamaydi',go:'s30',st:'todo'},
+      {id:'S-31',t:'To\'lov + chek',d:'Naqd / karta / ShifoTop',go:'s31',st:'todo'},
+      {id:'S-32',t:'Smena yopish',d:'Kamomat sababsiz yopilmaydi',go:'s32',st:'todo'},
+    ])}
+    ${lane('6 · Qayta aloqa',[
+      {id:'S-15',t:"Davolash natijasi",d:'7 kundan keyin qo\'ng\'iroq',go:'s15',st:'todo'},
+      {id:'S-16',t:'Natija belgilash',d:'Yaxshi / Muammo / Javob yo\'q',go:'s16',st:'todo'},
+    ])}
+    ${lane("7 · Qayta ko'rik",[
+      {id:'S-17',t:'Sanadan 1 kun oldin',d:'Ro\'yxat avtomatik shakllanadi',go:'s17',st:'todo'},
+      {id:'S-17b',t:'«Kelasizmi? Nechida?»',d:'Vaqt tanlanadi · SMS ketadi',go:'s17b',st:'todo'},
+      {id:'S-10',t:'Oldindan yozuv',d:'O\'sha kuni navbatga tushadi',go:'s10',st:'done'},
+    ])}
+    ${lane('Yordamchi',[
+      {id:'S-13',t:'Bemorlar bazasi',d:'Qidiruv, filtr',go:'s13',st:'done'},
+      {id:'S-14',t:'Bemor kartasi',d:'Tashriflar tarixi',go:'s14',st:'todo'},
+      {id:'S-43',t:'Mening profilim',d:'Shaxsiy, xavfsizlik',go:'s43',st:'todo'},
+      {id:'S-51',t:'TV ulash',d:'Pairing kodi',go:'s51',st:'todo'},
+    ])}
+    <div class="legend">
+      <span><i style="background:var(--success)"></i>Figma'da qurilgan</span>
+      <span><i style="background:var(--ink-300)"></i>Prototipda (Figma limiti tugagach ko'chiriladi)</span>
+    </div>
+  </div>`;
+}
+
+/* ---------- S-10 Navbat boshqaruvi ---------- */
+function queueCol(d){
+  const list = S.variant==='empty' ? [] : (QUEUE[d.p] || []);
+  const waiting = list.filter(x=>x.s==='w').length;
+  let body='';
+  if(S.variant==='loading'){
+    body = `<div style="padding:12px 8px;display:flex;flex-direction:column;gap:10px">
+      ${Array(5).fill(0).map(()=>`<div class="sk" style="height:40px"></div>`).join('')}</div>`;
+  } else if(!list.length){
+    body = `<div class="empty">
+      <div class="empty__ic">🗓</div>
+      <div class="empty__t">Navbat bo'sh</div>
+      <div class="empty__s">${d.paused?'Shifokor pauzada':'Birinchi bemorni ro\'yxatga oling'}</div>
+      <button class="btn btn--s" onclick="openDrawer()">Navbat berish</button></div>`;
+  } else {
+    let prev='';
+    body = list.map(t=>{
+      let out='';
+      if(t.s!==prev){ out += `<div class="slabel ${SL[t.s][1]}">${SL[t.s][0]}</div>`; prev=t.s; }
+      const cls = t.s==='ip'?'tk--ip':t.s==='ca'?'tk--ca':t.s==='ns'?'tk--noshow':'';
+      out += `<div class="tk ${cls}" onclick="go('s12')">
+        <span class="tk__code">${t.c}</span>
+        <span class="tk__name">${t.n}</span>
+        ${t.bk?`<span class="tk__bk">${t.bk}</span>`:''}
+        <span class="tk__time">${t.t}</span>
+        <span class="tk__acts">
+          <button class="iconbtn" title="Chaqirish" onclick="event.stopPropagation();toast('Chaqirildi','${t.c} — TV ekranda ko\\'rinmoqda')">▶</button>
+          <button class="iconbtn" title="Kelmadi" onclick="event.stopPropagation();toast('Kelmadi deb belgilandi','${t.c} navbatdan chiqarildi')">⊘</button>
+          <button class="iconbtn" title="Chekni qayta chop etish" onclick="event.stopPropagation();toast('Chek yuborildi','Printerga jo\\'natildi')">⎙</button>
+        </span></div>`;
+      return out;
+    }).join('');
+  }
+  return `<section class="col">
+    <div class="col__hd">
+      <i class="col__bar" style="background:${d.color}"></i>
+      <div class="col__info">
+        <div class="col__name">${d.p}&nbsp;&nbsp;${d.name}</div>
+        <div class="col__meta">${d.spec} · ${waiting} kutmoqda</div>
+      </div>
+      ${d.paused?'<span class="col__pause">Pauza</span>':''}
+    </div>
+    <div class="col__body">${body}</div>
+  </section>`;
+}
+function scQueue(){
+  const off = S.variant==='offline';
+  return `<div class="app">
+    ${topbar('navbat')}
+    <div class="subhead">
+      <div class="subhead__l">
+        <span class="today">Bugun · 14-avgust, juma</span>
+        <span class="badge badge--n">Kutmoqda 12</span>
+        <span class="badge badge--t">Qabulda 3</span>
+        <span class="badge badge--w">Kelmadi 1</span>
+      </div>
+      <button class="btn btn--p" onclick="openDrawer()">+ Yangi navbat <span class="kbd">F2</span></button>
+    </div>
+    ${off ? `<div style="margin:0 24px;margin-top:16px;padding:12px 16px;border-radius:var(--r-card);
+        background:var(--danger-bg);border:1px solid var(--danger);display:flex;gap:10px;align-items:center">
+        <span style="font-size:16px">⚠</span>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600;color:var(--danger)">Serverga ulanish yo'q</div>
+          <div style="font-size:12px;color:var(--danger)">Ko'rsatilgan ma'lumot 14:32 holatiga tegishli. Yangi navbat berish vaqtincha ishlamaydi.</div>
+        </div>
+        <button class="btn btn--s" onclick="S.variant='default';S.conn='live';render()">Qayta ulanish</button>
+      </div>`:''}
+    <div class="board">${DOCTORS.map(queueCol).join('')}</div>
+    ${overlays()}
+    ${toastEl()}
+  </div>`;
+}
+
+/* ---------- S-11 Drawer ---------- */
+function drawerStep1(){
+  return `<aside class="drawer">
+    <div class="drawer__hd">
+      <div class="drawer__ttl">Yangi navbat</div>
+      <button class="x" onclick="closeOverlay()">✕</button>
+    </div>
+    <div class="steps">
+      <div class="step is-active"><span class="step__n">1</span><span class="step__l">Bemor</span></div>
+      <i class="step__line"></i>
+      <div class="step"><span class="step__n">2</span><span class="step__l">Shifokor</span></div>
+    </div>
+    <div class="drawer__body">
+      <div class="field">
+        <label class="field__l">Telefon raqami</label>
+        <input class="input" value="+998 (90) 123-45-67" style="border-color:var(--blue-600);box-shadow:0 0 0 3px var(--blue-100)">
+        <div class="field__h">Raqamni kiriting — bemor avtomatik topiladi</div>
+      </div>
+      <div class="result">
+        <div class="result__r">
+          <span style="color:var(--success);font-weight:700">✓</span>
+          <span class="result__n">Aliyev Anvar, 34 yosh</span>
+          <span class="badge badge--i">ShifoTop</span>
+        </div>
+        <div class="result__s">Oxirgi tashrif: 12-iyul · Dr. Karimov A. · Jami 7 tashrif</div>
+      </div>
+      <button class="option" onclick="toast('Yangi bemor','F.I.Sh va tug\\'ilgan yilni kiriting')">
+        <i class="radio"></i>
+        <span style="flex:1;text-align:left;font-size:14px;font-weight:500">Yangi bemor sifatida qo'shish</span>
+      </button>
+    </div>
+    <div class="drawer__ft">
+      <button class="btn btn--s" onclick="closeOverlay()">Bekor qilish</button>
+      <button class="btn btn--p" onclick="S.step=2;render()">Davom etish →</button>
+    </div>
+  </aside>`;
+}
+function drawerStep2(){
+  const est=['~48 daq','~35 daq','~40 daq','Darhol'];
+  return `<aside class="drawer">
+    <div class="drawer__hd">
+      <div class="drawer__ttl">Yangi navbat</div>
+      <button class="x" onclick="closeOverlay()">✕</button>
+    </div>
+    <div class="steps">
+      <div class="step is-done"><span class="step__n">✓</span><span class="step__l">Bemor</span></div>
+      <i class="step__line"></i>
+      <div class="step is-active"><span class="step__n">2</span><span class="step__l">Shifokor</span></div>
+    </div>
+    <div class="drawer__body">
+      <div class="selchip">
+        <span>👤</span>
+        <span class="selchip__t">Aliyev Anvar · +998 90 123-45-67</span>
+        <button class="btn--g" style="font-size:13px" onclick="S.step=1;render()">O'zgartirish</button>
+      </div>
+      <div class="field__l">Shifokorni tanlang</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${DOCTORS.map((d,i)=>{
+          const w=(QUEUE[d.p]||[]).filter(x=>x.s==='w').length;
+          return `<button class="dpick ${i===0?'is-sel':''}">
+            <span class="dpick__sq" style="background:${d.color}">${d.p}</span>
+            <span class="dpick__i">
+              <span class="dpick__n">${d.name}</span>
+              <span class="dpick__m">${d.spec} · ${d.room} · ${w} kutmoqda</span>
+            </span>
+            <span class="badge ${w===0?'badge--s':'badge--n'}">${est[i]}</span>
+          </button>`;
+        }).join('')}
+      </div>
+      <div style="padding:12px 14px;border-radius:var(--r-input);background:var(--canvas);
+        border:1px solid var(--ink-200);display:flex;gap:10px;align-items:flex-start">
+        <span>ℹ</span>
+        <div style="font-size:12px;color:var(--ink-500);line-height:1.5">
+          Tasdiqlagach: <b style="color:var(--ink-700)">chek chop etiladi</b> va bemorga
+          <b style="color:var(--ink-700)">SMS yuboriladi</b>. Takroriy bosishda ikkinchi chek chiqmaydi.
+        </div>
+      </div>
+    </div>
+    <div class="drawer__ft">
+      <button class="btn btn--s" onclick="S.step=1;render()">← Orqaga</button>
+      <button class="btn btn--p" onclick="closeOverlay();toast('Navbat berildi · K-14','Chek chop etildi · SMS yuborildi')">
+        Navbat berish · K-14</button>
+    </div>
+  </aside>`;
+}
+
+/* ---------- S-12 Navbat kartochkasi ---------- */
+function drawerTicket(){
+  const ev=[['Ro\'yxatga olindi','12:04','Anora A.'],['Chek chop etildi','12:04','Tizim'],
+    ['SMS yuborildi','12:04','Tizim'],['Chaqirildi','12:47','Dr. Karimov A.'],
+    ['Qabul boshlandi','12:49','Dr. Karimov A.']];
+  return `<aside class="drawer">
+    <div class="drawer__hd">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="dpick__sq" style="background:var(--doc-1);width:44px;height:44px;font-size:18px">K</span>
+        <div>
+          <div class="drawer__ttl mono">K-09</div>
+          <div style="font-size:13px;color:var(--ink-500);margin-top:2px">Qabulda · 12:49 dan beri</div>
+        </div>
+      </div>
+      <button class="x" onclick="closeOverlay()">✕</button>
+    </div>
+    <div class="drawer__body">
+      <div style="padding:16px;border-radius:var(--r-card);background:var(--canvas);border:1px solid var(--ink-200)">
+        <div style="font-size:16px;font-weight:600">Aliyev Anvar</div>
+        <div style="font-size:13px;color:var(--ink-500);margin-top:4px">34 yosh · +998 90 123-45-67</div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <span class="badge badge--i">ShifoTop orqali</span>
+          <span class="badge badge--n">7 tashrif</span>
+        </div>
+      </div>
+      <div>
+        <div class="field__l" style="margin-bottom:10px">Holat tarixi</div>
+        <div style="display:flex;flex-direction:column;gap:0">
+          ${ev.map((e,i)=>`<div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="display:flex;flex-direction:column;align-items:center;flex:none">
+              <i style="width:9px;height:9px;border-radius:50%;background:${i===ev.length-1?'var(--blue-600)':'var(--ink-300)'};margin-top:5px"></i>
+              ${i<ev.length-1?'<i style="width:2px;flex:1;min-height:26px;background:var(--ink-200)"></i>':''}
+            </div>
+            <div style="padding-bottom:${i<ev.length-1?'12px':'0'}">
+              <div style="font-size:13px;font-weight:${i===ev.length-1?'600':'500'}">${e[0]}</div>
+              <div style="font-size:11px;color:var(--ink-500);margin-top:2px" class="mono">${e[1]} · ${e[2]}</div>
+            </div></div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="drawer__ft" style="flex-direction:column;gap:8px">
+      <div style="display:flex;gap:8px;width:100%">
+        <button class="btn btn--s" style="flex:1" onclick="toast('Chek yuborildi','Printerga jo\\'natildi')">⎙ Chekni qayta chop etish</button>
+        <button class="btn btn--s" style="flex:1" onclick="toast('SMS yuborildi','+998 90 123-45-67')">✉ SMS qayta yuborish</button>
+      </div>
+      <button class="btn btn--s" style="width:100%;color:var(--danger);border-color:var(--danger-bg)"
+        onclick="S.overlay='confirm';render()">Navbatni bekor qilish</button>
+    </div>
+  </aside>`;
+}
+
+/* ---------- Menu ---------- */
+function userMenu(){
+  return `<div class="menu" style="top:60px;right:24px">
+    <div class="menu__hd">
+      <span class="avatar" style="width:40px;height:40px;font-size:14px">AA</span>
+      <div style="flex:1;min-width:0">
+        <div class="menu__n">Anora Aliyeva</div>
+        <div class="menu__r">Registratura · Salomatlik klinikasi</div>
+      </div>
+    </div>
+    <div class="hr"></div>
+    <div class="menu__sec">
+      <div class="menu__st">ROL</div>
+      <div class="seg">
+        <button class="is-active">Registratura</button>
+        <button onclick="toast('Rol almashtirildi','Endi kassa ekranlari ochiq')">Kassir</button>
+      </div>
+    </div>
+    <div class="hr"></div>
+    <div style="padding:6px 0">
+      <button class="menu__item" onclick="go('s43')"><span>Mening profilim</span><span class="menu__ref">S-43</span></button>
+      <button class="menu__item" onclick="go('s30')"><span>Kassa ekrani</span><span class="menu__ref">S-30</span></button>
+      ${[['Klinika sozlamalari','S-45'],['Xodimlar va rollar','S-43b'],
+         ['TV ekranni ulash','S-51'],['Amallar jurnali','S-46']]
+        .map(([l,r])=>`<button class="menu__item" onclick="toast('${l}','Bu ekran keyingi fazada')">
+        <span>${l}</span><span class="menu__ref">${r}</span></button>`).join('')}
+    </div>
+    <div class="hr"></div>
+    <button class="menu__item menu__item--d" onclick="go('s00')"><span>Chiqish</span></button>
+  </div>`;
+}
+
+/* ---------- Confirm ---------- */
+function confirmDialog(){
+  return `<div class="modal" style="width:440px">
+    <div class="modal__hd">
+      <div class="modal__ttl">Navbatni bekor qilishni tasdiqlang</div>
+      <div class="modal__sub">K-09 · Aliyev Anvar</div>
+    </div>
+    <div class="modal__body">
+      <div style="padding:12px 14px;border-radius:var(--r-input);background:var(--warning-bg);
+        font-size:13px;color:var(--warning);line-height:1.5">
+        Bekor qilingan navbat qaytarilmaydi. Bemorga yangi raqam berish kerak bo'ladi.
+        Amal jurnalga yoziladi.
+      </div>
+      <div class="field">
+        <label class="field__l">Sabab (majburiy)</label>
+        <input class="input" placeholder="Masalan: bemor o'zi rad etdi">
+      </div>
+    </div>
+    <div class="modal__ft">
+      <button class="btn btn--s" onclick="S.overlay='ticket';render()">Orqaga</button>
+      <button class="btn btn--d" onclick="closeOverlay();toast('Navbat bekor qilindi','K-09 · sabab jurnalga yozildi')">Bekor qilish</button>
+    </div>
+  </div>`;
+}
+
+/* ---------- S-16 Qo'ng'iroq natijasi ---------- */
+function outcomeModal(){
+  return `<div class="modal">
+    <div class="modal__hd">
+      <div class="modal__ttl">Qo'ng'iroq natijasi</div>
+      <div class="modal__sub">Aliyev Anvar · +998 90 123-45-67 · Angina, 7 kun oldin</div>
+    </div>
+    <div class="modal__body">
+      <button class="outcome outcome--ok" onclick="closeOverlay();toast('Yaxshi deb belgilandi','Bemorga izoh so\\'rovi SMS yuborildi')">
+        <span class="outcome__ic">✓</span>
+        <span><span class="outcome__t">Yaxshi — tuzalgan</span>
+        <span class="outcome__d">Bemorga ShifoTop'da izoh qoldirish so'rovi yuboriladi</span></span>
+      </button>
+      <button class="outcome outcome--warn" onclick="closeOverlay();toast('Shifokorga yuborildi','Dr. Karimov A. vazifalar ro\\'yxatiga tushdi')">
+        <span class="outcome__ic">⚠</span>
+        <span><span class="outcome__t">Muammo bor</span>
+        <span class="outcome__d">Shifokorga darhol vazifa yaratiladi. Izoh so'ralmaydi</span></span>
+      </button>
+      <button class="outcome outcome--na" onclick="closeOverlay();toast('Javob yo\\'q','Ertaga qayta navbatga tushadi (2/3 urinish)')">
+        <span class="outcome__ic">☎</span>
+        <span><span class="outcome__t">Javob bermadi</span>
+        <span class="outcome__d">1 kundan keyin qayta navbatga tushadi · maks 3 urinish</span></span>
+      </button>
+      <div class="field">
+        <label class="field__l">Izoh (ixtiyoriy)</label>
+        <input class="input" placeholder="Qo'ng'iroqda nima aytildi">
+      </div>
+    </div>
+    <div class="modal__ft">
+      <button class="btn btn--s" onclick="closeOverlay()">Yopish</button>
+    </div>
+  </div>`;
+}
+
+/* ---------- Overlaylar ---------- */
+function overlays(){
+  if(!S.overlay) return '';
+  if(S.overlay==='menu') return `<div class="scrim" style="background:rgba(11,31,58,.04)" onclick="closeOverlay()"></div>${userMenu()}`;
+  const inner = S.overlay==='newticket' ? (S.step===1?drawerStep1():drawerStep2())
+    : S.overlay==='ticket' ? drawerTicket()
+    : S.overlay==='outcome' ? outcomeModal()
+    : S.overlay==='confcall' ? confirmCallModal()
+    : S.overlay==='pay' ? payModal()
+    : S.overlay==='confirm' ? confirmDialog() : '';
+  return `<div class="scrim" onclick="closeOverlay()"></div>${inner}`;
+}
+function toastEl(){
+  if(!S.toast) return '';
+  return `<div class="toast"><span>✓</span><div>
+    <div class="toast__t">${S.toast[0]}</div>
+    <div class="toast__d">${S.toast[1]}</div></div></div>`;
+}
+
+/* ---------- S-13 Bemorlar ---------- */
+const GRID13 = 'grid-template-columns:1fr 170px 60px 150px 150px 100px 110px';
+function scPatients(){
+  const rows = S.variant==='empty' ? `<div class="empty" style="padding:80px">
+      <div class="empty__ic">🔍</div>
+      <div class="empty__t">"Nazrov" bo'yicha hech narsa topilmadi</div>
+      <div class="empty__s">Imlo xatosi bo'lishi mumkin — telefon raqami bilan qidirib ko'ring</div>
+      <button class="btn btn--p" onclick="S.variant='default';render()">+ Yangi bemor qo'shish</button>
+    </div>`
+    : S.variant==='loading' ? Array(8).fill(0).map(()=>
+      `<div class="tbl__row" style="${GRID13}">
+        ${Array(7).fill(0).map(()=>'<div class="sk" style="height:14px"></div>').join('')}</div>`).join('')
+    : PATIENTS.map(p=>`<div class="tbl__row" style="${GRID13}" onclick="go('s14')">
+        <div class="cell--strong">${p[0]}</div>
+        <div class="mono cell--sub">${p[1]}</div>
+        <div class="cell--sub">${p[2]}</div>
+        <div class="cell--sub">${p[3]}</div>
+        <div class="cell--sub">${p[4]}</div>
+        <div class="mono cell--strong">${p[5]}</div>
+        <div class="cell--r"><span style="color:var(--blue-600);font-weight:500;font-size:13px">Navbat berish</span></div>
+      </div>`).join('');
+  return `<div class="app">
+    ${topbar('bemorlar')}
+    <div class="page">
+      <div class="page__hd">
+        <div>
+          <div class="page__ttl">Bemorlar</div>
+          <div class="page__sub">Jami 1 284 ta bemor</div>
+        </div>
+        <div class="spacer"></div>
+        <div class="search">
+          <span style="color:var(--ink-500)">⌕</span>
+          <input placeholder="Telefon yoki F.I.Sh bo'yicha qidirish" ${S.variant==='empty'?'value="Nazrov"':''}>
+          <span class="kbd kbd--l">Ctrl K</span>
+        </div>
+        <button class="btn btn--p">+ Yangi bemor</button>
+      </div>
+      <div class="chips">
+        <button class="chip is-active">Barchasi <span class="chip__n">1284</span></button>
+        <button class="chip">Bugun kelganlar <span class="chip__n">16</span></button>
+        <button class="chip">Qayta aloqa kutayotgan <span class="chip__n">12</span></button>
+        <button class="chip">ShifoTop orqali <span class="chip__n">341</span></button>
+      </div>
+      <div class="tbl">
+        <div class="tbl__hd" style="${GRID13}">
+          <div>F.I.Sh</div><div>Telefon</div><div>Yosh</div><div>Oxirgi tashrif</div>
+          <div>Shifokor</div><div>Tashriflar</div><div></div>
+        </div>
+        <div class="tbl__body">${rows}</div>
+      </div>
+    </div>
+    ${overlays()}${toastEl()}
+  </div>`;
+}
+
+/* ---------- S-14 Bemor kartasi ---------- */
+function scPatientCard(){
+  const visits=[
+    ['Bugun · 12:04','Dr. Karimov A.','Angina','K-09','Qabulda','t'],
+    ['12-iyul · 10:20','Dr. Karimov A.','Yuqori bosim','K-04','Yakunlandi','s'],
+    ['03-iyun · 15:40','Dr. Saidova N.','Tish og\'rig\'i','S-12','Yakunlandi','s'],
+    ['21-may · 09:15','Dr. Karimov A.','Profilaktika','K-02','Kelmadi','w'],
+  ];
+  return `<div class="app">
+    ${topbar('bemorlar')}
+    <div class="page">
+      <div class="page__hd">
+        <button class="btn btn--g" onclick="go('s13')">← Bemorlar</button>
+      </div>
+      <div style="display:flex;gap:16px;flex:1;min-height:0">
+        <!-- Chap: profil -->
+        <div style="width:340px;flex:none;display:flex;flex-direction:column;gap:12px">
+          <div style="padding:24px;background:var(--surface);border:1px solid var(--ink-200);
+            border-radius:var(--r-card);text-align:center">
+            <div class="avatar" style="width:64px;height:64px;font-size:22px;margin:0 auto">AA</div>
+            <div style="font-size:20px;font-weight:700;margin-top:14px">Aliyev Anvar</div>
+            <div style="font-size:13px;color:var(--ink-500);margin-top:4px">34 yosh · Erkak</div>
+            <div class="mono" style="font-size:14px;margin-top:10px">+998 90 123-45-67</div>
+            <div style="display:flex;gap:8px;justify-content:center;margin-top:14px">
+              <span class="badge badge--i">ShifoTop orqali</span>
+            </div>
+            <button class="btn btn--p" style="width:100%;margin-top:18px" onclick="openDrawer()">+ Navbat berish</button>
+          </div>
+          <div style="padding:18px;background:var(--surface);border:1px solid var(--ink-200);border-radius:var(--r-card)">
+            <div class="field__l" style="margin-bottom:12px">Qisqacha</div>
+            ${[['Jami tashrif','7'],['Kelmagan','1'],['Oxirgi tashrif','Bugun'],['Jami to\'lov','1 240 000']]
+              .map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:7px 0;font-size:13px">
+                <span style="color:var(--ink-500)">${k}</span>
+                <span class="mono" style="font-weight:600">${v}</span></div>`).join('')}
+          </div>
+        </div>
+        <!-- O'ng: tashriflar -->
+        <div class="tbl">
+          <div class="tbl__hd" style="grid-template-columns:170px 150px 1fr 90px 130px">
+            <div>Sana</div><div>Shifokor</div><div>Shikoyat</div><div>Navbat</div><div>Holat</div>
+          </div>
+          <div class="tbl__body">
+            ${visits.map(v=>`<div class="tbl__row" style="grid-template-columns:170px 150px 1fr 90px 130px">
+              <div class="cell--sub">${v[0]}</div>
+              <div class="cell--sub">${v[1]}</div>
+              <div class="cell--strong">${v[2]}</div>
+              <div class="mono cell--sub">${v[3]}</div>
+              <div><span class="badge badge--${v[5]}">${v[4]}</span></div>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+    ${overlays()}${toastEl()}
+  </div>`;
+}
+
+/* ---------- S-15 Qo'ng'iroqlar (2 bo'lim) ---------- */
+function scCalls(mode){
+  mode = mode || 'follow';
+  const isConf = mode==='confirm';
+  const body = isConf ? CONFIRMS.map(c=>{
+      const act = (c.s==='due'||c.s==='noans')
+        ? `<button class="btn btn--p" onclick="S.overlay='confcall';render()">☎ Tasdiqlash qo'ng'irog'i</button>`
+        : c.s==='ok'
+          ? `<span class="badge badge--s" style="padding:8px 12px;font-size:13px">✓ Keladi · ${c.slot}</span>`
+          : `<span class="badge badge--i" style="padding:8px 12px;font-size:13px">↻ Ko'chirildi · ${c.slot}</span>`;
+      return `<div class="call ${c.s==='due'?'is-due':''}">
+        <div class="call__i">
+          <div class="call__r1">
+            <span class="call__n">${c.n}</span>
+            <span class="call__ph">${c.ph}</span>
+            ${c.s==='noans'?`<span class="badge badge--w">Javob bermadi</span>`:''}
+          </div>
+          <div class="call__r2">📅 ${c.date} · ${c.reason} · ${c.dr}</div>
+        </div>${act}</div>`;
+    }).join('')
+    : CALLS.map(c=>{
+      const act = (c.s==='due'||c.s==='noans')
+        ? `<button class="btn btn--p" onclick="S.overlay='outcome';render()">☎ Qo'ng'iroq qilish</button>`
+        : c.s==='done'
+          ? `<span class="badge badge--s" style="padding:8px 12px;font-size:13px">✓ Yaxshi</span>`
+          : `<span class="badge badge--w" style="padding:8px 12px;font-size:13px">⚠ Shifokorga yuborildi</span>`;
+      return `<div class="call ${c.s==='due'?'is-due':''}">
+        <div class="call__i">
+          <div class="call__r1">
+            <span class="call__n">${c.n}</span>
+            <span class="call__ph">${c.ph}</span>
+            ${c.att>0?`<span class="badge badge--w">${c.att}-urinish</span>`:''}
+          </div>
+          <div class="call__r2">${c.dx} · ${c.dr}</div>
+        </div>${act}</div>`;
+    }).join('');
+
+  return `<div class="app">
+    ${topbar('calls')}
+    <div class="page">
+      <div class="page__hd">
+        <div>
+          <div class="page__ttl">Qo'ng'iroqlar</div>
+          <div class="page__sub">${isConf
+            ? "Ertangi qayta ko'riklarni tasdiqlash — bemor keladimi, nechida"
+            : "Davolash natijasini bilish uchun qayta aloqa"}</div>
+        </div>
+        <div class="spacer"></div>
+        <div class="prog">
+          <div class="prog__r"><span style="color:var(--ink-700);font-weight:500">Bajarildi</span>
+            <span class="mono" style="font-weight:600">${isConf?'2 / 5':'5 / 12'}</span></div>
+          <div class="prog__bar"><div class="prog__fill" style="width:${isConf?40:42}%"></div></div>
+        </div>
+      </div>
+
+      <div class="ptabs">
+        <button class="ptab ${!isConf?'is-active':''}" onclick="go('s15')">
+          Qayta aloqa<span class="ptab__n">12</span></button>
+        <button class="ptab ${isConf?'is-active':''}" onclick="go('s17')">
+          Qayta ko'rik tasdiqlash<span class="ptab__n">5</span></button>
+      </div>
+
+      ${isConf?`<div class="note" style="background:var(--info-bg);color:var(--info)">
+        <span>📅</span><span>Bu ro'yxat <b>ertangi kun</b> (15-avgust) uchun. Shifokor qabul
+        paytida belgilagan sanadan <b>1 kun oldin</b> avtomatik shakllanadi.</span></div>`:''}
+
+      <div class="calls">${body}</div>
+    </div>
+    ${overlays()}${toastEl()}
+  </div>`;
+}
+
+/* ---------- S-20 Shifokor ---------- */
+function scDoctor(retry){
+  const waiting = QUEUE.K.filter(x=>x.s==='w');
+  return `<div class="app">
+    <header class="topbar">
+      <div class="topbar__l">
+        <div class="brand">ShifoTop OS</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <i class="col__bar" style="background:var(--doc-1);height:24px"></i>
+          <div>
+            <div style="font-size:14px;font-weight:600">Dr. Karimov A.</div>
+            <div style="font-size:12px;color:var(--ink-500)">Kardiolog · 2-kabinet</div>
+          </div>
+        </div>
+      </div>
+      <div class="topbar__r">${connPill()}
+        <button class="user"><span class="avatar" style="background:var(--doc-1)">KA</span>
+        <span class="caret">▼</span></button></div>
+    </header>
+    <div class="doc">
+      <div class="doc__now">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--teal)">
+          ${retry?'CHAQIRILDI · JAVOB YO\'Q':'QABULDA'}</div>
+        <div class="doc__code" style="color:${retry?'var(--warning)':'var(--ink-900)'}">${retry?'K-10':'K-09'}</div>
+        <div class="doc__name">${retry?'Rahimova Malika':'Aliyev Anvar'}</div>
+        <div class="doc__meta">${retry?'12:18 da ro\'yxatga olingan · 1-chaqiruv 12:52':'34 yosh · 12:49 dan beri qabulda'}</div>
+        <div class="doc__acts">
+          ${retry
+            ? `<button class="btn btn--p" onclick="toast('Qayta chaqirildi','2/2 — javob bo\\'lmasa Kelmadi')">Qayta chaqirish (2/2)</button>
+               <button class="btn btn--s" onclick="go('s20');toast('Kelmadi','K-10 navbatdan chiqarildi. Keyingilar raqami o\\'zgarmaydi')">Kelmadi deb belgilash</button>`
+            : `<button class="btn btn--p" onclick="go('s21')">Qabulni yakunlash</button>
+               <button class="btn btn--s" onclick="go('s20b')">Kelmadi</button>`}
+        </div>
+      </div>
+      <div class="doc__next">Keyingi: <b class="mono">${retry?'K-11':'K-10'}</b> ${retry?'Sobirov Temur':'Rahimova Malika'}</div>
+      <button class="btn btn--p btn--hero" onclick="toast('Keyingi bemor chaqirildi','TV ekranda ko\\'rinmoqda · ovoz signali berildi')">
+        KEYINGI BEMORNI CHAQIRISH <span class="kbd">Space</span></button>
+      <div class="doc__q">Kutmoqda (${waiting.length}):
+        ${waiting.map(w=>`<span class="mono">${w.c}</span>`).join('<span style="color:var(--ink-300)">·</span>')}
+      </div>
+    </div>
+    ${toastEl()}
+  </div>`;
+}
+
+/* ---------- S-50 TV ---------- */
+function scTV(empty){
+  if(empty) return `<div class="tv">
+    <div class="tv__empty">
+      <h2>Navbat bo'sh</h2>
+      <p>Registraturaga murojaat qiling</p>
+    </div>
+    <div class="tv__ft"><div class="tv__brand">ShifoTop</div>
+      <div class="tv__note">"Salomatlik" klinikasi</div><div class="tv__time">14:32</div></div>
+  </div>`;
+  const next=[['K-10','Kardiolog','var(--doc-1)'],['S-08','Stomatolog','var(--doc-2)'],
+    ['T-12','Terapevt','var(--doc-3)'],['K-11','Kardiolog','var(--doc-1)'],['S-09','Stomatolog','var(--doc-2)']];
+  return `<div class="tv">
+    <div class="tv__main">
+      <div class="tv__l">
+        <div class="tv__lbl">Hozir chaqirilmoqda</div>
+        <div class="tvcard tvcard--hero is-calling" style="border-left-color:var(--doc-2)">
+          <div class="tvcard__code">S-07</div>
+          <div class="tvcard__i">
+            <div class="tvcard__room">5-KABINET</div>
+            <div class="tvcard__doc">Dr. Saidova N. · Stomatolog</div>
+          </div>
+        </div>
+        <div class="tvcard" style="border-left-color:var(--doc-1)">
+          <div class="tvcard__code">K-09</div>
+          <div class="tvcard__i">
+            <div class="tvcard__room">2-KABINET</div>
+            <div class="tvcard__doc">Dr. Karimov A.</div>
+          </div>
+        </div>
+      </div>
+      <div class="tv__r">
+        <div class="tv__lbl">Keyingi navbat</div>
+        ${next.map(([c,d,col])=>`<div class="tvnext" style="border-left-color:${col}">
+          <div class="tvnext__code">${c}</div><div class="tvnext__d">${d}</div></div>`).join('')}
+      </div>
+    </div>
+    <div class="tv__ft">
+      <div class="tv__brand">ShifoTop</div>
+      <div class="tv__note">Navbatingiz SMS orqali ham yuborildi</div>
+      <div class="tv__time">14:32</div>
+    </div>
+  </div>`;
+}
+function scPairing(){
+  return `<div class="tv">
+    <div class="pair">
+      <div class="tv__lbl">Ekranni ulash</div>
+      <div style="font-family:var(--font-data);font-size:120px;font-weight:700;letter-spacing:.14em;
+        padding:28px 44px;border:3px dashed #2E4A73;border-radius:var(--r-tv)">4K7-B29</div>
+      <div class="pair__steps">
+        ${[['1','Registratura panelida menyuni oching'],
+           ['2','"TV ekranni ulash" bandini tanlang'],
+           ['3','Yuqoridagi kodni kiriting']]
+          .map(([n,t])=>`<div class="pair__step"><div class="pair__num">${n}</div>${t}</div>`).join('')}
+      </div>
+    </div>
+    <div class="tv__ft"><div class="tv__brand">ShifoTop</div>
+      <div class="tv__note">Kod 10 daqiqada yangilanadi</div><div class="tv__time">14:32</div></div>
+  </div>`;
+}
+
+/* ---------- S-00 Login ---------- */
+function scLogin(){
+  return `<div class="app"><div class="login">
+    <div class="login__card">
+      <div class="login__brand">ShifoTop OS</div>
+      <div class="login__sub">Klinika operatsion tizimi</div>
+      <div class="login__f">
+        <div class="field">
+          <label class="field__l">Telefon raqami</label>
+          <input class="input" value="+998 (90) 555-11-22">
+        </div>
+        <div class="field">
+          <label class="field__l">Parol</label>
+          <input class="input" type="password" value="••••••••">
+        </div>
+        <button class="btn btn--p" style="width:100%;min-height:46px" onclick="go('s10')">Kirish</button>
+        <button class="btn btn--g" style="width:100%">SMS kod orqali kirish</button>
+      </div>
+    </div>
+  </div></div>`;
+}
+
+/* ---------- Holat ekranlari ---------- */
+function scState(kind){
+  const cfg = {
+    '403':['🔒','Bu bo\'limga ruxsatingiz yo\'q','Moliyaviy hisobotlar faqat Rahbar va Buxgalter uchun ochiq. Agar bu xato bo\'lsa — klinika rahbariga murojaat qiling.','var(--ink-100)','Navbatga qaytish','s10'],
+    'err':['⚠','Ma\'lumotni yuklab bo\'lmadi','Server javob bermadi. Bu vaqtincha muammo bo\'lishi mumkin — qayta urinib ko\'ring.','var(--danger-bg)','Qayta urinish','s10'],
+  }[kind];
+  return `<div class="app">${topbar('navbat')}
+    <div class="state">
+      <div class="state__ic" style="background:${cfg[3]}">${cfg[0]}</div>
+      <div class="state__t">${cfg[1]}</div>
+      <div class="state__d">${cfg[2]}</div>
+      <button class="btn btn--p" onclick="go('${cfg[5]}')">${cfg[4]}</button>
+    </div></div>`;
+}
+
+/* ---------- S-21 QABUL YOZUVI (shifokor) ---------- */
+function scVisit(){
+  const total = SERVICES.filter(s=>s.sel).reduce((a,s)=>a+s.p,0);
+  return `<div class="app">
+    <header class="topbar">
+      <div class="topbar__l">
+        <button class="btn btn--g" onclick="go('s20')">← Navbatga qaytish</button>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="dpick__sq" style="background:var(--doc-1);width:34px;height:34px;font-size:15px">K</span>
+          <div>
+            <div style="font-size:14px;font-weight:600">K-09 · Aliyev Anvar</div>
+            <div style="font-size:12px;color:var(--ink-500)">34 yosh · 12:49 dan beri qabulda</div>
+          </div>
+        </div>
+      </div>
+      <div class="topbar__r">${connPill()}
+        <button class="user"><span class="avatar" style="background:var(--doc-1)">KA</span>
+        <span class="caret">▼</span></button></div>
+    </header>
+    <div class="page">
+      <div class="split">
+        <!-- CHAP: tibbiy qism -->
+        <div class="pane" style="flex:1.25">
+          <div class="pane__hd"><div class="pane__t">Qabul yozuvi</div>
+            <span class="badge badge--n">Saqlangach o'zgartirib bo'lmaydi</span></div>
+          <div class="pane__b">
+            <div class="field">
+              <label class="field__l">Shikoyat</label>
+              <textarea class="ta">Ko'krak qafasida siquvchi og'riq, zinapoyaga ko'tarilganda hansirash. 3 kundan beri.</textarea>
+            </div>
+            <div class="field">
+              <label class="field__l">Ko'rik va tashxis</label>
+              <textarea class="ta">AB 150/95. Puls 88. EKG: sinus ritmi, ST segmentida o'zgarish yo'q.
+Tashxis: Stenokardiya, I FK. Arterial gipertenziya 2-daraja.</textarea>
+            </div>
+            <div class="field">
+              <label class="field__l">Retsept va tavsiyalar</label>
+              <textarea class="ta" style="min-height:110px">1. Bisoprolol 5 mg — ertalab 1 mahal, 30 kun
+2. Aspirin Cardio 100 mg — kechqurun, uzoq muddat
+3. Tuz miqdorini kuniga 5 g gacha kamaytirish
+4. Kunlik bosim o'lchash, daftarga yozish</textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- O'NG: pul + qayta ko'rik -->
+        <div class="pane" style="width:460px;flex:none">
+          <div class="pane__hd"><div class="pane__t">Xizmatlar va to'lov</div></div>
+          <div class="pane__b">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              ${SERVICES.map(s=>`<button class="srv ${s.sel?'is-sel':''}">
+                <span class="cbx">${s.sel?'✓':''}</span>
+                <span class="srv__n">${s.n}</span>
+                <span class="srv__p">${s.p===0?'Bepul':money(s.p)}</span>
+              </button>`).join('')}
+            </div>
+            <div class="total">
+              <span class="total__l">Jami to'lov</span>
+              <span class="total__v">${money(total)} so'm</span>
+            </div>
+            <div class="note">
+              <span>ℹ</span>
+              <span>Saqlangach bu summa <b>kassa ekranida</b> avtomatik paydo bo'ladi.
+              Kassir qo'lda hech narsa hisoblamaydi.</span>
+            </div>
+
+            <!-- Qayta ko'rik -->
+            <div class="recheck is-on">
+              <div class="recheck__hd">
+                <span class="cbx" style="background:var(--blue-600);border-color:var(--blue-600)">✓</span>
+                <div style="flex:1">
+                  <div class="recheck__t">Qayta ko'rikka chaqirilsin</div>
+                  <div class="recheck__s">Registratura sanadan 1 kun oldin qo'ng'iroq qiladi</div>
+                </div>
+              </div>
+              <div class="recheck__b">
+                <div class="presets">
+                  ${[['3 kun',''],['7 kun',''],['14 kun','is-active'],['30 kun',''],['Boshqa sana','']]
+                    .map(([t,a])=>`<button class="preset ${a}">${t}</button>`).join('')}
+                </div>
+                <div class="datebox">
+                  <span style="font-size:20px">📅</span>
+                  <div style="flex:1">
+                    <div class="datebox__d">28-avgust, payshanba</div>
+                    <div class="datebox__m">Bugundan 14 kun keyin · Dr. Karimov A.</div>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="field__l">Registratura uchun izoh</label>
+                  <input class="input" value="Bosim daftarini olib kelsin">
+                </div>
+                <div class="note" style="background:var(--warning-bg);color:var(--warning)">
+                  <span>☎</span>
+                  <span><b>27-avgust</b> kuni bu bemor registratura ekranida
+                  «Tasdiqlash qo'ng'iroqlari» ro'yxatida paydo bo'ladi.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="pane__ft">
+            <button class="btn btn--s" style="flex:1" onclick="go('s20')">Bekor qilish</button>
+            <button class="btn btn--p" style="flex:2"
+              onclick="go('s30');toast('Qabul yakunlandi','Hisob kassaga yuborildi · qayta ko\\'rik 28-avgustga belgilandi')">
+              Yakunlash va kassaga yuborish</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    ${toastEl()}
+  </div>`;
+}
+
+/* ---------- S-17 QAYTA KO'RIK TASDIQLASH (registratura) ---------- */
+function confirmCallModal(){
+  const slots=[['09:00',0],['09:30',0],['10:00',1],['10:30',0],['11:00',0],['11:30',1],
+    ['15:00',0],['15:30',0],['16:00',0],['16:30',1],['17:00',0],['17:30',0]];
+  return `<div class="modal" style="width:560px">
+    <div class="modal__hd">
+      <div class="modal__ttl">Qayta ko'rikni tasdiqlash</div>
+      <div class="modal__sub">Sobirov Temur · +998 99 901-23-45</div>
+    </div>
+    <div class="modal__body">
+      <div style="padding:14px 16px;border-radius:var(--r-card);background:var(--canvas);
+        border:1px solid var(--ink-200);display:flex;gap:14px;align-items:center">
+        <span style="font-size:22px">📅</span>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:600">15-avgust, shanba</div>
+          <div style="font-size:12px;color:var(--ink-500);margin-top:3px">
+            Dr. Karimov A. · Bosim nazorati · «Bosim daftarini olib kelsin»</div>
+        </div>
+      </div>
+
+      <div style="padding:12px 14px;border-radius:var(--r-input);background:var(--blue-50);
+        border:1px solid var(--blue-100);font-size:13px;line-height:1.6;color:var(--ink-700)">
+        <b>Aytiladigan matn:</b><br>
+        «Assalomu alaykum, Salomatlik klinikasidan. Ertaga Karimov Alisher qabuliga
+        yozilgansiz. Kela olasizmi? Soat nechida qulay?»
+      </div>
+
+      <div class="field">
+        <label class="field__l">Javob</label>
+        <div style="display:flex;gap:8px">
+          <button class="chip is-active" style="flex:1;justify-content:center">✓ Keladi</button>
+          <button class="chip" style="flex:1;justify-content:center">↻ Sanani ko'chirish</button>
+          <button class="chip" style="flex:1;justify-content:center">✕ Kelmaydi</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field__l">Vaqtni tanlang · 15-avgust</label>
+        <div class="slots">
+          ${slots.map(([t,busy],i)=>`<button class="slot ${busy?'is-busy':''} ${i===3?'is-sel':''}">${t}</button>`).join('')}
+        </div>
+        <div class="field__h">O'chirilgan vaqtlar allaqachon band</div>
+      </div>
+
+      <div class="note">
+        <span>✓</span>
+        <span>Tasdiqlangach bemorga <b>eslatma SMS</b> yuboriladi va 15-avgust kuni
+        u <b>oldindan yozuv</b> sifatida navbatga avtomatik tushadi — registratura qayta
+        ro'yxatga olmaydi.</span>
+      </div>
+    </div>
+    <div class="modal__ft">
+      <button class="btn btn--s" onclick="closeOverlay();toast('Javob bermadi','Ertaga qayta urinish ro\\'yxatiga tushdi')">Javob bermadi</button>
+      <button class="btn btn--p" onclick="closeOverlay();toast('Tasdiqlandi · 15-avgust 10:30','SMS yuborildi · navbatga oldindan yozildi')">Tasdiqlash</button>
+    </div>
+  </div>`;
+}
+
+/* ---------- S-30 KASSA ---------- */
+const GRID30='grid-template-columns:90px 1fr 160px 90px 150px 130px';
+function scCashier(){
+  const pending=INVOICES.filter(i=>i.s==='pending');
+  const paid=INVOICES.filter(i=>i.s==='paid');
+  const sumP=pending.reduce((a,i)=>a+i.sum,0);
+  const sumPaid=paid.reduce((a,i)=>a+i.sum,0);
+  const row=(i)=>`<div class="tbl__row" style="${GRID30}" onclick="${i.s==='pending'?"S.overlay='pay';render()":"toast('To\\'langan hisob','Tahrirlab bo\\'lmaydi. Xato bo\\'lsa — qaytarish yozuvi qo\\'shing')"}">
+    <div class="mono cell--strong">${i.c}</div>
+    <div class="cell--strong">${i.n}</div>
+    <div class="cell--sub">${i.dr}</div>
+    <div class="mono cell--sub">${i.t}</div>
+    <div class="mono cell--strong">${money(i.sum)}</div>
+    <div class="cell--r">${i.s==='pending'
+      ? `<span class="badge badge--w">To'lov kutilmoqda</span>`
+      : `<span class="badge badge--s">✓ ${i.pm}</span>`}</div>
+  </div>`;
+  return `<div class="app">
+    ${topbar('kassa','cashier')}
+    <div class="page">
+      <div class="page__hd">
+        <div>
+          <div class="page__ttl">Kassa</div>
+          <div class="page__sub">14-avgust, juma · Smena 09:00 dan ochiq</div>
+        </div>
+        <div class="spacer"></div>
+        <div class="shiftbar" style="width:auto">
+          <i class="conn__dot" style="background:var(--success)"></i>
+          <span class="shiftbar__t">Smena ochiq · 4 soat 12 daqiqa</span>
+          <button class="btn btn--s" style="min-height:32px;padding:6px 12px;font-size:13px"
+            onclick="go('s32')">Smenani yopish</button>
+        </div>
+      </div>
+
+      <div class="kpis" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi"><div class="kpi__l">To'lov kutilmoqda</div>
+          <div class="kpi__v" style="color:var(--warning)">${money(sumP)}</div>
+          <div class="kpi__d">${pending.length} ta hisob</div></div>
+        <div class="kpi"><div class="kpi__l">Bugun qabul qilindi</div>
+          <div class="kpi__v" style="color:var(--success)">${money(sumPaid)}</div>
+          <div class="kpi__d">${paid.length} ta to'lov</div></div>
+        <div class="kpi"><div class="kpi__l">Naqd</div>
+          <div class="kpi__v">${money(80000)}</div>
+          <div class="kpi__d">Kassada bo'lishi kerak</div></div>
+        <div class="kpi"><div class="kpi__l">Karta + ShifoTop</div>
+          <div class="kpi__v">${money(280000)}</div>
+          <div class="kpi__d">Terminal + onlayn</div></div>
+      </div>
+
+      <div class="ptabs">
+        <button class="ptab is-active">To'lanmagan<span class="ptab__n">${pending.length}</span></button>
+        <button class="ptab">Bugungi to'lovlar<span class="ptab__n">${paid.length}</span></button>
+        <button class="ptab">Qaytarishlar<span class="ptab__n">0</span></button>
+      </div>
+
+      <div class="tbl">
+        <div class="tbl__hd" style="${GRID30}">
+          <div>Navbat</div><div>Bemor</div><div>Shifokor</div><div>Vaqt</div>
+          <div>Summa</div><div style="text-align:right">Holat</div>
+        </div>
+        <div class="tbl__body">${pending.map(row).join('')}${paid.map(row).join('')}</div>
+      </div>
+    </div>
+    ${overlays()}${toastEl()}
+  </div>`;
+}
+
+/* ---------- S-31 TO'LOV MODALI ---------- */
+function payModal(){
+  const inv=INVOICES[0];
+  return `<div class="modal" style="width:600px">
+    <div class="modal__hd">
+      <div class="modal__ttl">To'lovni qabul qilish</div>
+      <div class="modal__sub">${inv.c} · ${inv.n} · ${inv.dr}</div>
+    </div>
+    <div class="modal__body">
+      <div style="display:flex;gap:16px">
+        <div style="flex:1;display:flex;flex-direction:column;gap:14px">
+          <div>
+            <div class="field__l" style="margin-bottom:8px">Xizmatlar</div>
+            ${inv.items.map(([n,p])=>`<div class="kv"><span class="kv__k">${n}</span>
+              <span class="kv__v mono">${money(p)}</span></div>`).join('')}
+          </div>
+          <div class="total"><span class="total__l">Jami</span>
+            <span class="total__v">${money(inv.sum)}</span></div>
+          <div>
+            <div class="field__l" style="margin-bottom:8px">To'lov usuli</div>
+            <div class="pms">
+              <button class="pm is-sel"><div class="pm__ic">💵</div>
+                <div class="pm__t">Naqd</div><div class="pm__s">Qaytim hisoblanadi</div></button>
+              <button class="pm"><div class="pm__ic">💳</div>
+                <div class="pm__t">Karta</div><div class="pm__s">Terminal</div></button>
+              <button class="pm"><div class="pm__ic">📱</div>
+                <div class="pm__t">ShifoTop</div><div class="pm__s">Oldindan to'langan</div></button>
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field"><label class="field__l">Berilgan summa</label>
+              <input class="input mono" value="250 000"></div>
+            <div class="field"><label class="field__l">Qaytim</label>
+              <input class="input mono" value="50 000" readonly
+                style="background:var(--success-bg);border-color:var(--success);color:var(--success);font-weight:600"></div>
+          </div>
+        </div>
+        <div class="receipt">
+          <div class="receipt__c"><b>ShifoTop</b><br>"Salomatlik" klinikasi</div>
+          <div class="receipt__hr"></div>
+          <div class="receipt__big">K-09</div>
+          <div class="receipt__c">Aliyev Anvar</div>
+          <div class="receipt__hr"></div>
+          ${inv.items.map(([n,p])=>`<div class="receipt__row"><span>${n.slice(0,16)}</span>
+            <span>${money(p)}</span></div>`).join('')}
+          <div class="receipt__hr"></div>
+          <div class="receipt__row"><b>JAMI</b><b>${money(inv.sum)}</b></div>
+          <div class="receipt__row"><span>Naqd</span><span>250 000</span></div>
+          <div class="receipt__row"><span>Qaytim</span><span>50 000</span></div>
+          <div class="receipt__hr"></div>
+          <div class="receipt__c" style="font-size:11px">14.08.2026 13:04<br>Kassir: Dilnoza K.<br><br>
+            Qayta ko'rik: 28-avgust</div>
+        </div>
+      </div>
+      <div class="note" style="background:var(--warning-bg);color:var(--warning)">
+        <span>⚠</span><span>To'lov yozuvi saqlangach <b>o'chirilmaydi va tahrirlanmaydi</b>.
+        Xato bo'lsa — «Qaytarish» yozuvi qo'shiladi, ikkalasi ham jurnalda qoladi.</span>
+      </div>
+    </div>
+    <div class="modal__ft">
+      <button class="btn btn--s" onclick="closeOverlay()">Bekor qilish</button>
+      <button class="btn btn--p" onclick="closeOverlay();toast('To\\'lov qabul qilindi · 200 000','Chek chop etildi · qaytim 50 000')">
+        To'lovni tasdiqlash va chek chiqarish</button>
+    </div>
+  </div>`;
+}
+
+/* ---------- S-32 SMENA YOPISH ---------- */
+function scShift(){
+  return `<div class="app">
+    ${topbar('smena','cashier')}
+    <div class="page">
+      <div class="page__hd">
+        <div><div class="page__ttl">Smenani yopish</div>
+        <div class="page__sub">Dilnoza K. · 14-avgust · 09:00 – 13:12</div></div>
+      </div>
+      <div class="split">
+        <div class="pane" style="flex:1">
+          <div class="pane__hd"><div class="pane__t">Tizim hisobi</div></div>
+          <div class="pane__b">
+            ${[['Jami to\'lovlar soni','23 ta'],['Naqd',money(1840000)],['Karta',money(2260000)],
+               ['ShifoTop onlayn',money(680000)],['Qaytarishlar','0']]
+              .map(([k,v])=>`<div class="kv"><span class="kv__k">${k}</span>
+                <span class="kv__v mono">${v}</span></div>`).join('')}
+            <div class="total"><span class="total__l">Kassada bo'lishi kerak (naqd)</span>
+              <span class="total__v">${money(1840000)}</span></div>
+          </div>
+        </div>
+        <div class="pane" style="flex:1">
+          <div class="pane__hd"><div class="pane__t">Haqiqiy sanoq</div></div>
+          <div class="pane__b">
+            <div class="field">
+              <label class="field__l">Kassadagi naqd pul (sanab kiriting)</label>
+              <input class="input mono" value="1 815 000" style="font-size:20px;font-weight:600">
+            </div>
+            <div style="padding:16px 18px;border-radius:var(--r-card);background:var(--danger-bg);
+              border:1px solid var(--danger)">
+              <div style="font-size:13px;color:var(--danger);font-weight:600">Kamomat aniqlandi</div>
+              <div class="mono" style="font-size:26px;font-weight:700;color:var(--danger);margin-top:6px">
+                −25 000 so'm</div>
+              <div style="font-size:12px;color:var(--danger);margin-top:8px;line-height:1.5">
+                Farq 0 dan katta. Sabab ko'rsatilmasa smena yopilmaydi — bu qoida
+                kamomat manbaini yo'qotmaslik uchun.</div>
+            </div>
+            <div class="field">
+              <label class="field__l">Farq sababi (majburiy)</label>
+              <textarea class="ta" placeholder="Masalan: K-08 hisobida qaytim noto'g'ri berilgan"></textarea>
+            </div>
+            <div class="note"><span>ℹ</span>
+              <span>Smena yopilgach barcha yozuvlar qulflanadi va rahbar hisobotida ko'rinadi.</span></div>
+          </div>
+          <div class="pane__ft">
+            <button class="btn btn--s" style="flex:1" onclick="go('s30')">Orqaga</button>
+            <button class="btn btn--p" style="flex:2"
+              onclick="go('s30');toast('Smena yopildi','Kamomat −25 000 sabab bilan qayd etildi')">
+              Smenani yopish</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    ${overlays()}${toastEl()}
+  </div>`;
+}
+
+/* ---------- S-43 PROFIL ---------- */
+function scProfile(){
+  return `<div class="app">
+    ${topbar('','reception')}
+    <div class="page">
+      <div class="page__hd">
+        <div><div class="page__ttl">Mening profilim</div>
+        <div class="page__sub">Shaxsiy ma'lumot va xavfsizlik sozlamalari</div></div>
+      </div>
+      <div class="prof">
+        <div class="prof__side">
+          <div class="prof__card">
+            <div class="avatar" style="width:72px;height:72px;font-size:24px;margin:0 auto">AA</div>
+            <div style="font-size:18px;font-weight:700;margin-top:14px">Anora Aliyeva</div>
+            <div style="font-size:13px;color:var(--ink-500);margin-top:4px">Registratura</div>
+            <div style="display:flex;gap:6px;justify-content:center;margin-top:12px;flex-wrap:wrap">
+              <span class="badge badge--i">Registratura</span>
+              <span class="badge badge--n">Kassir</span>
+            </div>
+            <button class="btn btn--s" style="width:100%;margin-top:16px">Rasmni o'zgartirish</button>
+          </div>
+          <div class="prof__nav">
+            <button class="prof__ni is-active">Shaxsiy ma'lumot</button>
+            <button class="prof__ni">Xavfsizlik</button>
+            <button class="prof__ni">Bildirishnomalar</button>
+            <button class="prof__ni">Mening faoliyatim</button>
+          </div>
+        </div>
+
+        <div style="flex:1;display:flex;flex-direction:column;gap:12px;min-height:0;overflow-y:auto">
+          <div class="kpis">
+            <div class="kpi"><div class="kpi__l">Bugun ro'yxatga olindi</div>
+              <div class="kpi__v">16</div><div class="kpi__d">bemor</div></div>
+            <div class="kpi"><div class="kpi__l">Qo'ng'iroqlar</div>
+              <div class="kpi__v">5<span style="font-size:16px;color:var(--ink-300)">/12</span></div>
+              <div class="kpi__d">bajarildi</div></div>
+            <div class="kpi"><div class="kpi__l">O'rtacha ro'yxat vaqti</div>
+              <div class="kpi__v">42<span style="font-size:16px;color:var(--ink-300)">s</span></div>
+              <div class="kpi__d">bir bemorga</div></div>
+            <div class="kpi"><div class="kpi__l">Smenada</div>
+              <div class="kpi__v">4:12</div><div class="kpi__d">09:00 dan beri</div></div>
+          </div>
+
+          <div class="pane" style="flex:none">
+            <div class="pane__hd"><div class="pane__t">Shaxsiy ma'lumot</div>
+              <button class="btn btn--g">Tahrirlash</button></div>
+            <div class="pane__b">
+              <div class="row2">
+                <div class="field"><label class="field__l">F.I.Sh</label>
+                  <input class="input" value="Aliyeva Anora Baxtiyorovna"></div>
+                <div class="field"><label class="field__l">Telefon (login)</label>
+                  <input class="input mono" value="+998 90 555-11-22"></div>
+                <div class="field"><label class="field__l">Lavozim</label>
+                  <input class="input" value="Registrator" readonly style="background:var(--ink-100)"></div>
+                <div class="field"><label class="field__l">Klinika</label>
+                  <input class="input" value="Salomatlik klinikasi" readonly style="background:var(--ink-100)"></div>
+              </div>
+              <div class="note"><span>ℹ</span>
+                <span>Lavozim va klinikani faqat rahbar o'zgartira oladi (S-43 Xodimlar va rollar).</span></div>
+            </div>
+          </div>
+
+          <div class="pane" style="flex:none">
+            <div class="pane__hd"><div class="pane__t">Xavfsizlik</div></div>
+            <div class="pane__b">
+              <div class="kv"><span class="kv__k">Parol oxirgi marta o'zgartirilgan</span>
+                <span class="kv__v">21-iyun, 2026</span></div>
+              <div class="kv"><span class="kv__k">Faol sessiyalar</span>
+                <span class="kv__v">2 ta qurilma</span></div>
+              <div class="kv"><span class="kv__k">Oxirgi kirish</span>
+                <span class="kv__v mono">Bugun 08:54 · 192.168.1.42</span></div>
+              <div style="display:flex;gap:10px;margin-top:6px">
+                <button class="btn btn--s">Parolni o'zgartirish</button>
+                <button class="btn btn--s" style="color:var(--danger);border-color:var(--danger-bg)">
+                  Boshqa qurilmalardan chiqish</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    ${overlays()}${toastEl()}
+  </div>`;
+}
+
+/* ---------- ROUTER ---------- */
+const SCREENS = {
+  flow:  {t:'Oqim xaritasi', w:1440, r:()=>scFlow()},
+  s00:   {t:'S-00 · Kirish', w:1440, r:()=>scLogin()},
+  s10:   {t:'S-10 · Navbat boshqaruvi', w:1440, r:()=>{S.tab='navbat';return scQueue()}},
+  s11a:  {t:'S-11a · Yangi navbat — 1-qadam', w:1440, pre:()=>{S.overlay='newticket';S.step=1}, r:()=>scQueue()},
+  s11b:  {t:'S-11b · Yangi navbat — 2-qadam', w:1440, pre:()=>{S.overlay='newticket';S.step=2}, r:()=>scQueue()},
+  s12:   {t:'S-12 · Navbat kartochkasi', w:1440, pre:()=>{S.overlay='ticket'}, r:()=>scQueue()},
+  s10c:  {t:'S-10c · Foydalanuvchi menyusi', w:1440, pre:()=>{S.overlay='menu'}, r:()=>scQueue()},
+  s13:   {t:'S-13 · Bemorlar bazasi', w:1440, r:()=>scPatients()},
+  s14:   {t:'S-14 · Bemor kartasi', w:1440, r:()=>scPatientCard()},
+  s15:   {t:"S-15 · Qayta aloqa qo'ng'iroqlari", w:1440, r:()=>scCalls('follow')},
+  s16:   {t:"S-16 · Qo'ng'iroq natijasi", w:1440, pre:()=>{S.overlay='outcome'}, r:()=>scCalls('follow')},
+  s17:   {t:"S-17 · Qayta ko'rik tasdiqlash", w:1440, r:()=>scCalls('confirm')},
+  s17b:  {t:"S-17b · Tasdiqlash qo'ng'irog'i + vaqt tanlash", w:1440,
+          pre:()=>{S.overlay='confcall'}, r:()=>scCalls('confirm')},
+  s20:   {t:'S-20 · Shifokor — mening navbatim', w:1440, r:()=>scDoctor(false)},
+  s20b:  {t:'S-20b · Qayta chaqirish (2/2)', w:1440, r:()=>scDoctor(true)},
+  s21:   {t:'S-21 · Qabul yozuvi — xizmat, narx, qayta ko\'rik', w:1440, r:()=>scVisit()},
+  s30:   {t:'S-30 · Kassa — hisoblar', w:1440, r:()=>scCashier()},
+  s31:   {t:"S-31 · To'lovni qabul qilish", w:1440, pre:()=>{S.overlay='pay'}, r:()=>scCashier()},
+  s32:   {t:'S-32 · Smenani yopish', w:1440, r:()=>scShift()},
+  s43:   {t:'S-43 · Mening profilim', w:1440, r:()=>scProfile()},
+  s50:   {t:'S-50 · TV navbat ekrani', w:1920, tv:1, r:()=>scTV(false)},
+  s50b:  {t:"S-50b · TV — navbat bo'sh", w:1920, tv:1, r:()=>scTV(true)},
+  s51:   {t:'S-51 · TV ekranni ulash', w:1920, tv:1, r:()=>scPairing()},
+  'st-load':{t:'Holat · Yuklanmoqda', w:1440, pre:()=>{S.variant='loading'}, r:()=>scQueue()},
+  'st-off': {t:'Holat · Aloqa uzildi', w:1440, pre:()=>{S.variant='offline';S.conn='off'}, r:()=>scQueue()},
+  'st-403': {t:'S-02 · Ruxsat yo\'q', w:1440, r:()=>scState('403')},
+  'st-err': {t:'S-02 · Xatolik', w:1440, r:()=>scState('err')},
+};
+
+function go(id){
+  S.screen = id; S.overlay=null; S.variant='default'; S.toast=null; S.step=1;
+  if(S.conn==='off' && id!=='st-off') S.conn='live';
+  const sc = SCREENS[id];
+  if(sc && sc.pre) sc.pre();
+  render();
+}
+function openDrawer(){ S.overlay='newticket'; S.step=1; render(); }
+function toggleMenu(){ S.overlay = S.overlay==='menu' ? null : 'menu'; render(); }
+function closeOverlay(){ S.overlay=null; render(); }
+let toastTimer;
+function toast(t,d){
+  S.toast=[t,d]; render();
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{S.toast=null;render()},3200);
+}
+
+/* Statebar (holat variantlari) */
+const VARIANTS = [
+  ['default','Oddiy'], ['loading','Yuklanmoqda'], ['empty','Bo\'sh'], ['offline','Aloqa yo\'q'],
+];
+function renderStatebar(){
+  const sc = SCREENS[S.screen];
+  const show = ['s10','s13'].includes(S.screen);
+  const bar = document.getElementById('statebar');
+  if(!show){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  bar.innerHTML = VARIANTS.map(([v,l])=>
+    `<button class="${S.variant===v?'is-active':''}" onclick="setVariant('${v}')">${l}</button>`).join('');
+}
+function setVariant(v){
+  S.variant=v;
+  S.conn = v==='offline' ? 'off' : 'live';
+  render();
+}
+
+/* Navigator */
+function renderNav(){
+  document.getElementById('navList').innerHTML = NAV.map(g=>
+    `<div class="nav__group"><div class="nav__gtitle">${g.g}</div>
+      ${g.items.map(it=>`<button class="nav__item ${S.screen===it.id?'is-active':''}" onclick="go('${it.id}')">
+        <span class="nav__id">${it.ref}</span><span class="nav__label">${it.label}</span></button>`).join('')}
+    </div>`).join('');
+}
+
+/* Sahna */
+function render(){
+  const sc = SCREENS[S.screen] || SCREENS.flow;
+  const frame = document.getElementById('frame');
+  frame.className = 'frame' + (sc.tv?' frame--tv':'');
+  frame.innerHTML = sc.r();
+  document.getElementById('caption').innerHTML =
+    `<span>${sc.t}</span><span class="mono">${sc.w}×${sc.tv?1080:(S.screen==='flow'?'auto':900)}</span>`;
+  fit();
+  renderNav();
+  renderStatebar();
+}
+function fit(){
+  const stage=document.getElementById('stage');
+  const sc = SCREENS[S.screen] || SCREENS.flow;
+  const avail = stage.clientWidth - 56;
+  const scale = Math.min(1, avail / sc.w);
+  const frame=document.getElementById('frame');
+  frame.style.width = sc.w+'px';
+  frame.style.transform = 'none';
+  const h = sc.tv ? 1080 : (S.screen==='flow' ? frame.offsetHeight : 900);
+  frame.style.transform = `scale(${scale})`;
+  const inner = document.querySelector('.stage__inner');
+  inner.style.width = (sc.w*scale)+'px';
+  inner.style.height = (h*scale)+'px';
+}
+window.addEventListener('resize', fit);
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape') closeOverlay();
+  if(e.key==='F2'){ e.preventDefault(); openDrawer(); }
+});
+render();
+</script>
+</body>
+</html>
