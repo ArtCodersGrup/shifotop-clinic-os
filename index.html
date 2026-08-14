@@ -646,6 +646,97 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 .tk__bk{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;
   background:var(--info-bg);color:var(--info);flex:none}
 
+/* ============================================================
+   ANALITIKA — diagrammalar
+   ============================================================ */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.card{background:var(--surface);border:1px solid var(--ink-200);border-radius:var(--r-card);
+  padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+.card__hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.card__t{font-size:14px;font-weight:600}
+.card__s{font-size:12px;color:var(--ink-500);margin-top:3px;line-height:1.45}
+
+.delta{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:600;
+  padding:2px 7px;border-radius:var(--r-chip)}
+.delta--up{background:var(--success-bg);color:var(--success)}
+.delta--dn{background:var(--danger-bg);color:var(--danger)}
+.delta--fl{background:var(--ink-100);color:var(--ink-500)}
+
+.bars{display:flex;align-items:flex-end;gap:6px;height:150px;padding-top:8px}
+.bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;
+  gap:6px;height:100%;position:relative}
+.bar__v{width:100%;border-radius:5px 5px 2px 2px;background:var(--blue-500);min-height:3px;
+  transition:background var(--dur-fast)}
+.bar:hover .bar__v{background:var(--blue-700)}
+.bar--wk .bar__v{background:var(--ink-200)}
+.bar__l{font-size:10px;color:var(--ink-500);font-variant-numeric:tabular-nums}
+.bar__t{position:absolute;top:-4px;font-family:var(--font-data);font-size:10px;
+  font-weight:600;color:var(--ink-700);opacity:0;transition:opacity var(--dur-fast)}
+.bar:hover .bar__t{opacity:1}
+
+.hbars{display:flex;flex-direction:column;gap:11px}
+.hbar__r{display:flex;align-items:center;gap:10px;font-size:13px}
+.hbar__n{width:160px;flex:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hbar__t{flex:1;height:22px;border-radius:5px;background:var(--ink-100);overflow:hidden}
+.hbar__f{height:100%;border-radius:5px;transition:width var(--dur-base) var(--ease-standard)}
+.hbar__v{width:100px;flex:none;text-align:right;font-family:var(--font-data);font-size:12px;
+  font-weight:600;font-variant-numeric:tabular-nums}
+
+.donut{display:flex;align-items:center;gap:20px}
+.donut__lg{display:flex;flex-direction:column;gap:9px;flex:1}
+.donut__i{display:flex;align-items:center;gap:8px;font-size:13px}
+.donut__d{width:10px;height:10px;border-radius:3px;flex:none}
+.donut__n{flex:1;color:var(--ink-700)}
+.donut__v{font-family:var(--font-data);font-weight:600;font-variant-numeric:tabular-nums}
+
+.heat{display:flex;flex-direction:column;gap:4px}
+.heat__r{display:flex;gap:4px;align-items:center}
+.heat__lb{width:26px;flex:none;font-size:11px;color:var(--ink-500);font-weight:500}
+.heat__c{flex:1;aspect-ratio:1.3;border-radius:4px;display:grid;place-items:center;
+  font-size:10px;font-weight:600;font-variant-numeric:tabular-nums}
+.heat__hd{display:flex;gap:4px;padding-left:30px}
+.heat__hc{flex:1;text-align:center;font-size:10px;color:var(--ink-500);font-weight:500}
+.heat__lg{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink-500);margin-top:4px}
+.heat__sw{display:flex;gap:3px}
+.heat__sw i{width:16px;height:10px;border-radius:2px;display:block}
+
+.funnel{display:flex;flex-direction:column;gap:8px}
+.fstep{display:flex;align-items:center;gap:12px}
+.fstep__b{height:44px;border-radius:8px;display:flex;align-items:center;padding:0 14px;
+  color:#fff;font-weight:600;font-size:14px}
+.fstep__i{flex:1;font-size:12px;color:var(--ink-500);line-height:1.4}
+.fstep__loss{color:var(--danger);font-weight:600}
+
+.dist{position:relative;height:56px;margin:10px 0 16px}
+.dist__t{position:absolute;left:0;right:0;top:20px;height:8px;border-radius:4px;
+  background:linear-gradient(90deg,var(--success) 0%,var(--success) 32%,
+    var(--warning) 60%,var(--danger) 100%)}
+.dist__m{position:absolute;top:10px;width:2px;height:28px;background:var(--ink-900);border-radius:1px}
+.dist__lb{position:absolute;top:40px;transform:translateX(-50%);font-size:11px;
+  font-weight:600;white-space:nowrap}
+
+.period{display:flex;gap:2px;padding:3px;background:var(--ink-100);border-radius:var(--r-input)}
+.period button{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;color:var(--ink-500)}
+.period button.is-active{background:var(--surface);color:var(--ink-900);font-weight:600;box-shadow:var(--e-1)}
+
+.alert{display:flex;gap:10px;padding:12px 14px;border-radius:var(--r-input);
+  font-size:13px;line-height:1.5;align-items:flex-start}
+.alert--w{background:var(--warning-bg);color:var(--warning)}
+.alert--d{background:var(--danger-bg);color:var(--danger)}
+.alert--s{background:var(--success-bg);color:var(--success)}
+
+.atbl{width:100%;border-collapse:collapse;font-size:13px}
+.atbl th{text-align:left;padding:10px 12px;font-size:11px;font-weight:600;color:var(--ink-500);
+  letter-spacing:.3px;border-bottom:1px solid var(--ink-200);white-space:nowrap}
+.atbl th.r,.atbl td.r{text-align:right}
+.atbl td{padding:12px;border-bottom:1px solid var(--ink-200)}
+.atbl tr:last-child td{border-bottom:none}
+.atbl tbody tr:hover{background:var(--blue-50)}
+.dotname{display:flex;align-items:center;gap:8px}
+.dotname i{width:8px;height:8px;border-radius:2px;flex:none}
+.scroll{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-right:2px}
+
 .flow{width:1440px;background:var(--canvas);padding:40px 48px;display:flex;
   flex-direction:column;gap:28px}
 .flow__h1{font-size:28px;font-weight:800;font-family:var(--font-display);letter-spacing:-.02em}
@@ -782,6 +873,52 @@ const INVOICES = [
    items:[['Terapevt konsultatsiyasi',90000]], pm:'ShifoTop'},
 ];
 const money = v => v.toLocaleString('ru-RU').replace(/,/g,' ');
+const mln = v => (v/1000000).toFixed(1);
+
+/* ===== ANALITIKA MA'LUMOTLARI (avgust oyi) ===== */
+const DOC_STATS = [
+  {p:'K',n:'Karimov A.',sp:'Kardiolog',c:'var(--doc-1)',v:186,rev:19840000,avg:14,ret:62,ns:6,fu:88},
+  {p:'S',n:'Saidova N.',sp:'Stomatolog',c:'var(--doc-2)',v:142,rev:26310000,avg:32,ret:71,ns:4,fu:94},
+  {p:'T',n:"To'rayev B.",sp:'Terapevt',c:'var(--doc-3)',v:214,rev:15980000,avg:11,ret:44,ns:12,fu:61},
+  {p:'U',n:'Usmonova D.',sp:'UZI',c:'var(--doc-4)',v:98,rev:11760000,avg:18,ret:28,ns:8,fu:0},
+];
+/* v=qabullar · rev=daromad · avg=o'rtacha daqiqa · ret=qayta tashrif % · ns=kelmadi % · fu=follow-up qamrovi % */
+
+const SRV_STATS = [
+  {n:'Terapevt konsultatsiyasi', cnt:214, price:90000},
+  {n:'Kardiolog konsultatsiyasi', cnt:186, price:80000},
+  {n:'Stomatolog konsultatsiyasi', cnt:142, price:70000},
+  {n:'UZI (qorin bo\'shlig\'i)', cnt:98, price:120000},
+  {n:'EKG', cnt:94, price:120000},
+  {n:'Plomba (svetovaya)', cnt:76, price:270000},
+  {n:'Umumiy qon tahlili', cnt:68, price:60000},
+  {n:'Rentgen', cnt:41, price:120000},
+  {n:'EXO-kardiografiya', cnt:22, price:250000},
+  {n:'Bosim sutkalik monitoringi', cnt:7, price:180000},
+];
+
+/* Kunlik daromad — oxirgi 14 kun (mln so'm) */
+const REVENUE = [2.1,2.8,3.2,2.4,3.6,1.2,0.4,2.6,3.1,2.9,3.4,3.8,1.4,0.5];
+const REV_DAYS = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14'];
+
+/* Soatlik yuklama — 6 kun × 11 soat (bemor soni) */
+const HOURS = ['09','10','11','12','13','14','15','16','17','18','19'];
+const WDAYS = ['Du','Se','Ch','Pa','Ju','Sh'];
+const LOAD = [
+  [4,9,14,16,11,6,8,12,10,5,2],
+  [5,11,15,18,12,7,9,13,11,6,2],
+  [3,8,13,15,10,5,7,11,9,4,1],
+  [6,12,17,19,13,8,10,14,12,7,3],
+  [7,13,18,21,14,9,11,15,13,8,3],
+  [8,15,19,17,9,4,5,7,6,3,1],
+];
+
+/* Bemor manbalari */
+const SOURCES = [['ShifoTop orqali',341,'var(--doc-1)'],['O\'zi keldi',512,'var(--doc-3)'],
+  ['Tavsiya bilan',287,'var(--doc-6)'],['Takroriy ko\'rik',144,'var(--doc-4)']];
+
+/* To'lov usullari */
+const PAYMIX = [['Naqd',38,'var(--doc-4)'],['Karta',47,'var(--doc-1)'],['ShifoTop onlayn',15,'var(--doc-2)']];
 
 /* ==========================================================
    HOLAT
@@ -828,6 +965,11 @@ const NAV = [
     {id:'s30',  ref:'S-30', label:'Hisoblar ro\'yxati'},
     {id:'s31',  ref:'S-31', label:"To'lovni qabul qilish"},
     {id:'s32',  ref:'S-32', label:'Smenani yopish'},
+  ]},
+  {g:'Rahbar · Analitika', items:[
+    {id:'s40',  ref:'S-40', label:'Dashboard'},
+    {id:'s41',  ref:'S-41', label:'Shifokorlar samaradorligi'},
+    {id:'s44',  ref:'S-44', label:'Xizmatlar tahlili'},
   ]},
   {g:'Profil', items:[
     {id:'s43',  ref:'S-43', label:'Mening profilim'},
@@ -2048,6 +2190,399 @@ function scProfile(){
   </div>`;
 }
 
+/* ============================================================
+   ANALITIKA EKRANLARI
+   ============================================================ */
+const HEAT_C = ['#EFF6FF','#DBEAFE','#93C5FD','#3B86F0','#1668E3','#0B4FA8'];
+function heatColor(v,max){
+  const i = Math.min(HEAT_C.length-1, Math.floor(v/max*HEAT_C.length));
+  return {bg:HEAT_C[i], fg: i>=3?'#fff':'var(--ink-700)'};
+}
+function adminTopbar(active){
+  const tabs=[['dash','Dashboard','s40'],['docs','Shifokorlar','s41'],
+    ['srv','Xizmatlar','s44'],['fin','Moliya','s42']];
+  return `<header class="topbar">
+    <div class="topbar__l">
+      <div class="brand">ShifoTop OS</div>
+      <nav class="tabs">${tabs.map(([k,l,g])=>
+        `<button class="tab ${active===k?'is-active':''}" onclick="go('${g}')">${l}</button>`).join('')}</nav>
+    </div>
+    <div class="topbar__r">${connPill()}
+      <button class="user" onclick="toggleMenu()">
+        <span class="avatar" style="background:var(--doc-7)">RS</span>
+        <span class="user__name">Rustam S.</span><span class="caret">▼</span></button>
+    </div></header>`;
+}
+function periodBar(){
+  return `<div class="period">
+    <button>Bugun</button><button>7 kun</button>
+    <button class="is-active">Avgust</button><button>Chorak</button></div>`;
+}
+
+/* ---------- S-40 DASHBOARD ---------- */
+function scDash(){
+  const maxRev = Math.max(...REVENUE);
+  const totalRev = DOC_STATS.reduce((a,d)=>a+d.rev,0);
+  const totalV = DOC_STATS.reduce((a,d)=>a+d.v,0);
+  const maxLoad = Math.max(...LOAD.flat());
+  const kpi=(l,v,d,dc,s)=>`<div class="card" style="padding:16px 18px;gap:6px">
+    <div class="kpi__l">${l}</div>
+    <div style="display:flex;align-items:baseline;gap:8px">
+      <span class="kpi__v" style="margin:0">${v}</span>
+      <span class="delta delta--${dc}">${d}</span></div>
+    <div class="kpi__d">${s}</div></div>`;
+
+  return `<div class="app">
+    ${adminTopbar('dash')}
+    <div class="page">
+      <div class="page__hd">
+        <div><div class="page__ttl">Dashboard</div>
+          <div class="page__sub">Salomatlik klinikasi · 1–14 avgust 2026</div></div>
+        <div class="spacer"></div>${periodBar()}
+        <button class="btn btn--s">⤓ Eksport</button>
+      </div>
+
+      <div class="scroll">
+        <div class="kpis">
+          ${kpi("Daromad", mln(totalRev)+" mln", "▲ 12%", "up", "o'tgan oyga nisbatan")}
+          ${kpi("Qabullar", totalV, "▲ 8%", "up", "640 → 692")}
+          ${kpi("O'rtacha chek", money(Math.round(totalRev/totalV)), "▼ 3%", "dn", "so'm")}
+          ${kpi("Kelmaganlar", "7,4%", "▼ 2,1pp", "up", "51 ta bemor")}
+        </div>
+
+        <div class="grid2">
+          <!-- Daromad dinamikasi -->
+          <div class="card">
+            <div class="card__hd">
+              <div><div class="card__t">Kunlik daromad</div>
+                <div class="card__s">mln so'm · kulrang ustunlar — dam olish kunlari</div></div>
+              <span class="delta delta--up">▲ 12%</span>
+            </div>
+            <div class="bars">
+              ${REVENUE.map((v,i)=>{
+                const wk = i===5||i===6||i===12||i===13;
+                return `<div class="bar ${wk?'bar--wk':''}">
+                  <span class="bar__t">${v}</span>
+                  <div class="bar__v" style="height:${v/maxRev*100}%"></div>
+                  <span class="bar__l">${REV_DAYS[i]}</span></div>`;
+              }).join('')}
+            </div>
+            <div class="alert alert--w">
+              <span>⚠</span><span>Shanba–yakshanba daromadi ish kunidan <b>4 barobar past</b>.
+              Dam olish kunlari faqat 1 shifokor ishlaydi — talab bormi, tekshirish arziydi.</span></div>
+          </div>
+
+          <!-- Kutish vaqti taqsimoti -->
+          <div class="card">
+            <div class="card__hd">
+              <div><div class="card__t">Kutish vaqti</div>
+                <div class="card__s">O'rtacha yolg'on gapiradi — p90 ga qarang</div></div>
+            </div>
+            <div class="dist">
+              <div class="dist__t"></div>
+              <div class="dist__m" style="left:26%"></div>
+              <div class="dist__lb" style="left:26%">p50 · 16 daq</div>
+              <div class="dist__m" style="left:71%"></div>
+              <div class="dist__lb" style="left:71%">p90 · 47 daq</div>
+            </div>
+            <div class="alert alert--d">
+              <span>⚠</span><span>Har <b>10-bemor 47 daqiqa</b> kutmoqda. Shikoyat aynan
+              shulardan keladi — o'rtacha 16 daqiqa bu muammoni yashiradi.</span></div>
+            <div class="hbars">
+              ${DOC_STATS.map(d=>{
+                const w=[18,52,12,9][DOC_STATS.indexOf(d)];
+                return `<div class="hbar__r">
+                  <span class="hbar__n">${d.n}</span>
+                  <span class="hbar__t"><span class="hbar__f"
+                    style="width:${w/60*100}%;background:${w>40?'var(--danger)':d.c}"></span></span>
+                  <span class="hbar__v">${w} daq</span></div>`;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <!-- Yuklama xaritasi -->
+          <div class="card">
+            <div class="card__hd"><div>
+              <div class="card__t">Soatlik yuklama</div>
+              <div class="card__s">Xodim jadvalini shu asosda tuzing</div></div></div>
+            <div class="heat">
+              <div class="heat__hd">${HOURS.map(h=>`<span class="heat__hc">${h}</span>`).join('')}</div>
+              ${LOAD.map((row,i)=>`<div class="heat__r">
+                <span class="heat__lb">${WDAYS[i]}</span>
+                ${row.map(v=>{const c=heatColor(v,maxLoad);
+                  return `<span class="heat__c" style="background:${c.bg};color:${c.fg}">${v}</span>`}).join('')}
+              </div>`).join('')}
+              <div class="heat__lg"><span>Kam</span>
+                <span class="heat__sw">${HEAT_C.map(c=>`<i style="background:${c}"></i>`).join('')}</span>
+                <span>Ko'p</span></div>
+            </div>
+            <div class="alert alert--s">
+              <span>✓</span><span>Eng zich vaqt — <b>juma 12:00</b> (21 bemor) va
+              <b>payshanba 12:00</b>. 13:00–14:00 da tushlik tufayli cho'kish bor.</span></div>
+          </div>
+
+          <!-- Qayta ko'rik voronkasi -->
+          <div class="card">
+            <div class="card__hd"><div>
+              <div class="card__t">Qayta ko'rik voronkasi</div>
+              <div class="card__s">Shifokor belgiladi → qancha bemor keldi</div></div></div>
+            <div class="funnel">
+              ${[['Shifokor belgiladi',168,100,'var(--doc-1)',''],
+                 ['Tasdiqlash qo\'ng\'irog\'i',151,90,'var(--doc-1)','17 ta javob bermadi'],
+                 ['Kelishga rozi',124,74,'var(--doc-3)','27 ta rad etdi / ko\'chirdi'],
+                 ['Haqiqatan keldi',97,58,'var(--doc-6)','27 ta kelmadi']]
+                .map(([l,n,p,c,loss])=>`<div class="fstep">
+                  <div class="fstep__b" style="width:${p}%;background:${c}">${l} · ${n}</div>
+                  <div class="fstep__i">${p}%${loss?`<br><span class="fstep__loss">−${loss}</span>`:''}</div>
+                </div>`).join('')}
+            </div>
+            <div class="alert alert--w"><span>⚠</span>
+              <span>Eng katta yo'qotish — <b>tasdiqlangandan keyin kelmaslik (27 ta)</b>.
+              Kun boshida eslatma SMS yuborish shuni kamaytirishi mumkin.</span></div>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <div class="card__t">Bemor manbalari</div>
+            <div class="hbars">
+              ${(()=>{const mx=Math.max(...SOURCES.map(s=>s[1]));
+                return SOURCES.map(([n,v,c])=>`<div class="hbar__r">
+                  <span class="hbar__n">${n}</span>
+                  <span class="hbar__t"><span class="hbar__f" style="width:${v/mx*100}%;background:${c}"></span></span>
+                  <span class="hbar__v">${v}</span></div>`).join('')})()}
+            </div>
+            <div class="alert alert--s"><span>✓</span>
+              <span>ShifoTop marketplace <b>341 ta bemor</b> keltirdi — jami oqimning 27%.</span></div>
+          </div>
+          <div class="card">
+            <div class="card__t">To'lov usullari</div>
+            <div class="donut">
+              <svg width="140" height="140" viewBox="0 0 42 42">
+                ${(()=>{let off=25;return PAYMIX.map(([n,p,c])=>{
+                  const s=`<circle cx="21" cy="21" r="15.9" fill="none" stroke="${c}"
+                    stroke-width="7" stroke-dasharray="${p} ${100-p}" stroke-dashoffset="${off}"/>`;
+                  off-=p; return s;}).join('')})()}
+                <text x="21" y="20.5" text-anchor="middle" font-size="5.5" font-weight="800"
+                  fill="#0B1F3A" font-family="Manrope">74.9</text>
+                <text x="21" y="25" text-anchor="middle" font-size="2.8" fill="#64748B">mln so'm</text>
+              </svg>
+              <div class="donut__lg">
+                ${PAYMIX.map(([n,p,c])=>`<div class="donut__i">
+                  <i class="donut__d" style="background:${c}"></i>
+                  <span class="donut__n">${n}</span>
+                  <span class="donut__v">${p}%</span></div>`).join('')}
+                <div style="margin-top:6px;padding-top:10px;border-top:1px solid var(--ink-200)">
+                  <div class="donut__i"><span class="donut__n">Kassa kamomati</span>
+                    <span class="donut__v" style="color:var(--danger)">−25 000</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    ${overlays()}${toastEl()}
+  </div>`;
+}
+
+/* ---------- S-41 SHIFOKORLAR SAMARADORLIGI ---------- */
+function scDocStats(){
+  const maxRev=Math.max(...DOC_STATS.map(d=>d.rev));
+  const maxV=Math.max(...DOC_STATS.map(d=>d.v));
+  return `<div class="app">
+    ${adminTopbar('docs')}
+    <div class="page">
+      <div class="page__hd">
+        <div><div class="page__ttl">Shifokorlar samaradorligi</div>
+          <div class="page__sub">Alohida hisob yuritilmaydi — raqamlar kundalik ishdan chiqadi</div></div>
+        <div class="spacer"></div>${periodBar()}
+      </div>
+
+      <div class="scroll">
+        <div class="grid2">
+          <div class="card">
+            <div class="card__t">Daromad bo'yicha</div>
+            <div class="hbars">
+              ${[...DOC_STATS].sort((a,b)=>b.rev-a.rev).map(d=>`<div class="hbar__r">
+                <span class="hbar__n">${d.n}</span>
+                <span class="hbar__t"><span class="hbar__f"
+                  style="width:${d.rev/maxRev*100}%;background:${d.c}"></span></span>
+                <span class="hbar__v">${mln(d.rev)} mln</span></div>`).join('')}
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__t">Qabullar soni bo'yicha</div>
+            <div class="hbars">
+              ${[...DOC_STATS].sort((a,b)=>b.v-a.v).map(d=>`<div class="hbar__r">
+                <span class="hbar__n">${d.n}</span>
+                <span class="hbar__t"><span class="hbar__f"
+                  style="width:${d.v/maxV*100}%;background:${d.c}"></span></span>
+                <span class="hbar__v">${d.v} ta</span></div>`).join('')}
+            </div>
+            <div class="alert alert--w"><span>⚠</span>
+              <span>Reyting <b>teskari</b>: eng ko'p bemor qabul qilgan To'rayev daromad
+              bo'yicha 3-o'rinda. Qabul o'rtacha 11 daqiqa — chuqur ko'rikka vaqt yetmaydi.</span></div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:0">
+          <table class="atbl">
+            <thead><tr>
+              <th>Shifokor</th><th class="r">Qabullar</th><th class="r">Daromad</th>
+              <th class="r">O'rt. chek</th><th class="r">O'rt. vaqt</th>
+              <th class="r">Qayta tashrif</th><th class="r">Kelmadi</th><th class="r">Follow-up</th>
+            </tr></thead>
+            <tbody>
+              ${DOC_STATS.map(d=>`<tr>
+                <td><div class="dotname"><i style="background:${d.c}"></i>
+                  <div><div style="font-weight:600">${d.n}</div>
+                  <div style="font-size:11px;color:var(--ink-500)">${d.sp}</div></div></div></td>
+                <td class="r mono">${d.v}</td>
+                <td class="r mono" style="font-weight:600">${money(d.rev)}</td>
+                <td class="r mono">${money(Math.round(d.rev/d.v))}</td>
+                <td class="r mono">${d.avg} daq</td>
+                <td class="r"><span class="badge badge--${d.ret>=60?'s':d.ret>=40?'w':'d'}">${d.ret}%</span></td>
+                <td class="r"><span class="badge badge--${d.ns<=6?'s':d.ns<=9?'w':'d'}">${d.ns}%</span></td>
+                <td class="r"><span class="badge badge--${d.fu>=85?'s':d.fu>=60?'w':'n'}">${d.fu?d.fu+'%':'—'}</span></td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="grid3">
+          <div class="card">
+            <div class="card__t" style="color:var(--success)">✓ Eng kuchli tomon</div>
+            <div style="font-size:13px;line-height:1.6;color:var(--ink-700)">
+              <b>Saidova N.</b> — qayta tashrif <b>71%</b> va follow-up qamrovi <b>94%</b>.
+              Bemorlari qaytadi, ya'ni davolash tugatilyapti. O'rtacha chek ham eng yuqori.</div>
+          </div>
+          <div class="card">
+            <div class="card__t" style="color:var(--warning)">⚠ Diqqat talab qiladi</div>
+            <div style="font-size:13px;line-height:1.6;color:var(--ink-700)">
+              <b>To'rayev B.</b> — kelmaganlar <b>12%</b> (o'rtacha 7,4%) va qayta tashrif
+              atigi <b>44%</b>. Sabab: qabul 11 daqiqa — bemor "shoshib ko'rildim" deb qaytmaydi.</div>
+          </div>
+          <div class="card">
+            <div class="card__t" style="color:var(--info)">ℹ Tushuntirish kerak</div>
+            <div style="font-size:13px;line-height:1.6;color:var(--ink-700)">
+              <b>Usmonova D.</b> (UZI) — qayta tashrif <b>28%</b>, lekin bu <b>normal</b>:
+              UZI bir martalik diagnostika. Uni boshqa shifokorlar bilan taqqoslash noto'g'ri.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    ${overlays()}${toastEl()}
+  </div>`;
+}
+
+/* ---------- S-44 XIZMATLAR TAHLILI ---------- */
+function scServices(){
+  const byCnt=[...SRV_STATS].sort((a,b)=>b.cnt-a.cnt).slice(0,7);
+  const byRev=[...SRV_STATS].map(s=>({...s,rev:s.cnt*s.price})).sort((a,b)=>b.rev-a.rev).slice(0,7);
+  const mxC=byCnt[0].cnt, mxR=byRev[0].rev;
+  return `<div class="app">
+    ${adminTopbar('srv')}
+    <div class="page">
+      <div class="page__hd">
+        <div><div class="page__ttl">Xizmatlar tahlili</div>
+          <div class="page__sub">Eng ko'p sotiladigan va eng ko'p daromad keltiradigan — har xil xizmatlar</div></div>
+        <div class="spacer"></div>${periodBar()}
+      </div>
+
+      <div class="scroll">
+        <div class="grid2">
+          <div class="card">
+            <div class="card__hd"><div><div class="card__t">Soni bo'yicha top</div>
+              <div class="card__s">Necha marta ko'rsatildi</div></div></div>
+            <div class="hbars">
+              ${byCnt.map(s=>`<div class="hbar__r">
+                <span class="hbar__n">${s.n}</span>
+                <span class="hbar__t"><span class="hbar__f"
+                  style="width:${s.cnt/mxC*100}%;background:var(--doc-3)"></span></span>
+                <span class="hbar__v">${s.cnt} ta</span></div>`).join('')}
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__hd"><div><div class="card__t">Daromad bo'yicha top</div>
+              <div class="card__s">Soni × narx</div></div></div>
+            <div class="hbars">
+              ${byRev.map(s=>`<div class="hbar__r">
+                <span class="hbar__n">${s.n}</span>
+                <span class="hbar__t"><span class="hbar__f"
+                  style="width:${s.rev/mxR*100}%;background:var(--doc-1)"></span></span>
+                <span class="hbar__v">${mln(s.rev)} mln</span></div>`).join('')}
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert--s" style="font-size:14px">
+          <span>💡</span>
+          <span><b>Ikki reyting bir xil emas.</b> Terapevt konsultatsiyasi soni bo'yicha 1-o'rinda
+          (214 ta), lekin daromadda <b>Plomba</b> undan yuqori — 76 ta × 270 000 = 20,5 mln.
+          Uskuna sotib olish yoki reklama byudjetini <b>daromad reytingiga</b> qarab taqsimlang.</span>
+        </div>
+
+        <div class="card" style="padding:0">
+          <table class="atbl">
+            <thead><tr>
+              <th>Xizmat</th><th class="r">Narx</th><th class="r">Soni</th>
+              <th class="r">Daromad</th><th class="r">Daromaddagi ulush</th><th class="r">Holat</th>
+            </tr></thead>
+            <tbody>
+              ${(()=>{const tot=SRV_STATS.reduce((a,s)=>a+s.cnt*s.price,0);
+                return [...SRV_STATS].map(s=>({...s,rev:s.cnt*s.price}))
+                  .sort((a,b)=>b.rev-a.rev).map(s=>{
+                  const sh=(s.rev/tot*100).toFixed(1);
+                  const st = s.cnt<10 ? ['d','Deyarli sotilmaydi']
+                    : s.cnt<30 ? ['w','Kam talab'] : ['s','Faol'];
+                  return `<tr>
+                    <td style="font-weight:500">${s.n}</td>
+                    <td class="r mono">${money(s.price)}</td>
+                    <td class="r mono">${s.cnt}</td>
+                    <td class="r mono" style="font-weight:600">${money(s.rev)}</td>
+                    <td class="r mono">${sh}%</td>
+                    <td class="r"><span class="badge badge--${st[0]}">${st[1]}</span></td>
+                  </tr>`}).join('')})()}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <div class="card__t" style="color:var(--danger)">⚠ Sotilmayotgan xizmat</div>
+            <div style="font-size:13px;line-height:1.6;color:var(--ink-700)">
+              <b>Bosim sutkalik monitoringi</b> — oyiga atigi <b>7 marta</b>, narx 180 000.
+              Kardiologda 186 ta qabul bo'lgani hisobga olinsa, bu juda kam.<br><br>
+              Tekshirish kerak: shifokor buni <b>tavsiya qilyaptimi</b>, yoki bemorlar
+              narxdan qaytyaptimi, yoki uskuna band bo'lyaptimi.</div>
+          </div>
+          <div class="card">
+            <div class="card__t">Ko'p uchraydigan kombinatsiyalar</div>
+            <div class="hbars">
+              ${[['Kardiolog konsult. + EKG',88,'var(--doc-1)'],
+                 ['Terapevt + Qon tahlili',61,'var(--doc-3)'],
+                 ['Stomatolog + Rentgen',38,'var(--doc-2)'],
+                 ['Stomatolog + Plomba',34,'var(--doc-2)']]
+                .map(([n,v,c])=>`<div class="hbar__r">
+                  <span class="hbar__n">${n}</span>
+                  <span class="hbar__t"><span class="hbar__f"
+                    style="width:${v/88*100}%;background:${c}"></span></span>
+                  <span class="hbar__v">${v} marta</span></div>`).join('')}
+            </div>
+            <div class="alert alert--s"><span>💡</span>
+              <span>«Konsultatsiya + EKG» 88 marta birga ketgan — buni <b>paket narx</b>
+              sifatida taklif qilish mumkin.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    ${overlays()}${toastEl()}
+  </div>`;
+}
+
 /* ---------- ROUTER ---------- */
 const SCREENS = {
   flow:  {t:'Oqim xaritasi', w:1440, r:()=>scFlow()},
@@ -2071,6 +2606,9 @@ const SCREENS = {
   s31:   {t:"S-31 · To'lovni qabul qilish", w:1440, pre:()=>{S.overlay='pay'}, r:()=>scCashier()},
   s32:   {t:'S-32 · Smenani yopish', w:1440, r:()=>scShift()},
   s43:   {t:'S-43 · Mening profilim', w:1440, r:()=>scProfile()},
+  s40:   {t:'S-40 · Dashboard (rahbar)', w:1440, r:()=>scDash()},
+  s41:   {t:'S-41 · Shifokorlar samaradorligi', w:1440, r:()=>scDocStats()},
+  s44:   {t:'S-44 · Xizmatlar tahlili', w:1440, r:()=>scServices()},
   s50:   {t:'S-50 · TV navbat ekrani', w:1920, tv:1, r:()=>scTV(false)},
   s50b:  {t:"S-50b · TV — navbat bo'sh", w:1920, tv:1, r:()=>scTV(true)},
   s51:   {t:'S-51 · TV ekranni ulash', w:1920, tv:1, r:()=>scPairing()},
