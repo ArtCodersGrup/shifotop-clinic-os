@@ -971,6 +971,18 @@ const NAV = [
     {id:'s41',  ref:'S-41', label:'Shifokorlar samaradorligi'},
     {id:'s44',  ref:'S-44', label:'Xizmatlar tahlili'},
   ]},
+  {g:'Sozlash va nazorat', items:[
+    {id:'s47',  ref:'S-47', label:'Shifokorlar jadvali'},
+    {id:'s45',  ref:'S-45', label:'Klinika sozlamalari'},
+    {id:'s43b', ref:'S-43b',label:'Xodimlar va rollar'},
+    {id:'s44b', ref:'S-44b',label:'Xizmatlar va narxlar'},
+    {id:'s46',  ref:'S-46', label:'Amallar jurnali'},
+    {id:'s18',  ref:'S-18', label:'Kunni yopish'},
+  ]},
+  {g:'Bemor (mobil)', items:[
+    {id:'s70',  ref:'S-70', label:'Navbat holati (SMS havolasi)'},
+    {id:'s71',  ref:'S-71', label:'Izoh qoldirish'},
+  ]},
   {g:'Profil', items:[
     {id:'s43',  ref:'S-43', label:'Mening profilim'},
   ]},
@@ -1062,7 +1074,7 @@ function scFlow(){
     ])}
     ${lane('3 · Bemor',[
       {id:'C',t:'Chek chiqadi',d:'K-14 · 2-kabinet',go:'s12',st:'todo'},
-      {id:'D',t:'SMS keladi',d:'Navbat: K-14. Hozir: K-9',go:'s12',st:'todo'},
+      {id:'S-70',t:'SMS havolasi',d:'Telefonda navbat holati',go:'s70',st:'todo'},
       {id:'S-50',t:'TV ekran',d:'Kutish zalida kuzatadi',go:'s50',st:'todo'},
     ])}
     ${lane('4 · Shifokor',[
@@ -1077,11 +1089,23 @@ function scFlow(){
     ${lane('6 · Qayta aloqa',[
       {id:'S-15',t:"Davolash natijasi",d:'7 kundan keyin qo\'ng\'iroq',go:'s15',st:'todo'},
       {id:'S-16',t:'Natija belgilash',d:'Yaxshi / Muammo / Javob yo\'q',go:'s16',st:'todo'},
+      {id:'S-71',t:'Izoh qoldirish',d:'ShifoTop reytingi oshadi ↺',go:'s71',st:'todo'},
     ])}
     ${lane("7 · Qayta ko'rik",[
       {id:'S-17',t:'Sanadan 1 kun oldin',d:'Ro\'yxat avtomatik shakllanadi',go:'s17',st:'todo'},
       {id:'S-17b',t:'«Kelasizmi? Nechida?»',d:'Vaqt tanlanadi · SMS ketadi',go:'s17b',st:'todo'},
       {id:'S-10',t:'Oldindan yozuv',d:'O\'sha kuni navbatga tushadi',go:'s10',st:'done'},
+    ])}
+    ${lane('Kun oxiri',[
+      {id:'S-18',t:'Kunni yopish',d:'Osilib qolganlar tozalanadi',go:'s18',st:'todo'},
+      {id:'S-32',t:'Smena yopish',d:'Kamomat sababsiz yopilmaydi',go:'s32',st:'todo'},
+      {id:'S-40',t:'Rahbar dashboard',d:'Ertasi kuni raqamlar tayyor',go:'s40',st:'todo'},
+    ])}
+    ${lane('Sozlash (birinchi kun)',[
+      {id:'S-45',t:'Klinika sozlamalari',d:'Ish vaqti, prefiks, SMS',go:'s45',st:'todo'},
+      {id:'S-43b',t:'Xodimlar va rollar',d:'Shifokorsiz navbat yo\'q',go:'s43b',st:'todo'},
+      {id:'S-47',t:'Jadval',d:'Slotlar shunga tayanadi',go:'s47',st:'todo'},
+      {id:'S-44b',t:'Narxlar',d:'Xizmatsiz hisob yo\'q',go:'s44b',st:'todo'},
     ])}
     ${lane('Yordamchi',[
       {id:'S-13',t:'Bemorlar bazasi',d:'Qidiruv, filtr',go:'s13',st:'done'},
@@ -2583,6 +2607,614 @@ function scServices(){
   </div>`;
 }
 
+/* ============================================================
+   SOZLAMA VA BOSHQARUV EKRANLARI
+   ============================================================ */
+function setTopbar(active){
+  const tabs=[['sched','Jadval','s47'],['staff','Xodimlar','s43b'],
+    ['price','Xizmatlar','s44b'],['cfg','Sozlamalar','s45'],['audit','Jurnal','s46']];
+  return `<header class="topbar">
+    <div class="topbar__l">
+      <div class="brand">ShifoTop OS</div>
+      <nav class="tabs">${tabs.map(([k,l,g])=>
+        `<button class="tab ${active===k?'is-active':''}" onclick="go('${g}')">${l}</button>`).join('')}</nav>
+    </div>
+    <div class="topbar__r">${connPill()}
+      <button class="user" onclick="toggleMenu()">
+        <span class="avatar" style="background:var(--doc-7)">RS</span>
+        <span class="user__name">Rustam S.</span><span class="caret">▼</span></button>
+    </div></header>`;
+}
+
+/* ---------- S-47 SHIFOKORLAR JADVALI ---------- */
+const SCHED = {
+  K:{d:[[1,'09:00','18:00'],[1,'09:00','18:00'],[1,'09:00','18:00'],[1,'09:00','18:00'],
+        [1,'09:00','18:00'],[1,'09:00','14:00'],[0]], lunch:'13:00–14:00'},
+  S:{d:[[1,'10:00','19:00'],[1,'10:00','19:00'],[0],[1,'10:00','19:00'],
+        [1,'10:00','19:00'],[1,'10:00','16:00'],[0]], lunch:'14:00–15:00'},
+  T:{d:[[1,'08:00','17:00'],[1,'08:00','17:00'],[1,'08:00','17:00'],[1,'08:00','17:00'],
+        [1,'08:00','17:00'],[0],[0]], lunch:'12:00–13:00'},
+  U:{d:[[2],[2],[2],[2],[2],[2],[0]], lunch:'—', vac:'12–22 avgust · Ta\'til'},
+};
+const DAYNAMES=['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba','Yakshanba'];
+const DAYNUM=['11','12','13','14','15','16','17'];
+
+function scSchedule(){
+  return `<div class="app">
+    ${setTopbar('sched')}
+    <div class="page">
+      <div class="page__hd">
+        <div><div class="page__ttl">Shifokorlar jadvali</div>
+          <div class="page__sub">Navbat va qayta ko'rik vaqtlari shu jadvalga tayanadi</div></div>
+        <div class="spacer"></div>
+        <div class="period"><button>← Oldingi</button>
+          <button class="is-active">11–17 avgust</button><button>Keyingi →</button></div>
+        <button class="btn btn--p">+ Ta'til / dam qo'shish</button>
+      </div>
+
+      <div class="alert alert--w">
+        <span>⚠</span><span>Jadvalsiz shifokor uchun <b>navbat berib bo'lmaydi</b> va
+        qayta ko'rik vaqti taklif qilinmaydi. Ta'til kiritilsa, o'sha kundagi mavjud
+        yozuvlar avtomatik ko'chirishga chiqariladi.</span>
+      </div>
+
+      <div class="card" style="padding:0;flex:1;overflow:hidden;display:flex;flex-direction:column">
+        <div style="display:grid;grid-template-columns:200px repeat(7,1fr);
+          border-bottom:1px solid var(--ink-200);background:var(--canvas)">
+          <div style="padding:12px 16px;font-size:11px;font-weight:600;color:var(--ink-500)">SHIFOKOR</div>
+          ${DAYNAMES.map((d,i)=>`<div style="padding:10px 8px;text-align:center;
+            border-left:1px solid var(--ink-200);${i===4?'background:var(--blue-50)':''}">
+            <div style="font-size:11px;color:var(--ink-500);font-weight:600">${d.slice(0,3)}</div>
+            <div style="font-family:var(--font-data);font-size:16px;font-weight:600;margin-top:2px;
+              ${i===4?'color:var(--blue-600)':''}">${DAYNUM[i]}</div>
+          </div>`).join('')}
+        </div>
+        <div style="flex:1;overflow-y:auto">
+          ${DOCTORS.map(doc=>{
+            const s=SCHED[doc.p];
+            return `<div style="display:grid;grid-template-columns:200px repeat(7,1fr);
+              border-bottom:1px solid var(--ink-200);min-height:76px">
+              <div style="padding:12px 16px;display:flex;gap:10px;align-items:center">
+                <i style="width:4px;height:40px;border-radius:2px;background:${doc.color};flex:none"></i>
+                <div style="min-width:0">
+                  <div style="font-size:14px;font-weight:600">${doc.name}</div>
+                  <div style="font-size:11px;color:var(--ink-500);margin-top:2px">${doc.spec} · ${doc.room}</div>
+                  <div style="font-size:11px;color:var(--ink-500)">Tushlik: ${s.lunch}</div>
+                </div>
+              </div>
+              ${s.d.map((day,i)=>{
+                let inner='';
+                if(day[0]===1) inner=`<div style="background:${doc.color};color:#fff;border-radius:6px;
+                  padding:8px 6px;text-align:center;font-family:var(--font-data);font-size:11px;
+                  font-weight:600;line-height:1.5">${day[1]}<br>${day[2]}</div>`;
+                else if(day[0]===2) inner=`<div style="background:var(--warning-bg);
+                  color:var(--warning);border-radius:6px;padding:8px 6px;text-align:center;
+                  font-size:11px;font-weight:600;line-height:1.4">Ta'til</div>`;
+                else inner=`<div style="color:var(--ink-300);text-align:center;font-size:11px;
+                  padding:12px 0">Dam</div>`;
+                return `<div style="padding:8px;border-left:1px solid var(--ink-200);
+                  ${i===4?'background:var(--blue-50)':''}">${inner}</div>`;
+              }).join('')}
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <div class="grid3">
+        <div class="card" style="padding:14px 16px;gap:8px">
+          <div class="card__t" style="font-size:13px">Haftalik sig'im</div>
+          <div style="font-size:13px;color:var(--ink-700);line-height:1.6">
+            <b>238 ta</b> qabul o'rni · hozir <b>186 ta</b> band (78%)</div>
+        </div>
+        <div class="card" style="padding:14px 16px;gap:8px">
+          <div class="card__t" style="font-size:13px;color:var(--warning)">⚠ Ta'til ta'siri</div>
+          <div style="font-size:13px;color:var(--ink-700);line-height:1.6">
+            Usmonova D. ta'tilda — <b>7 ta UZI yozuvi</b> ko'chirilishi kerak</div>
+        </div>
+        <div class="card" style="padding:14px 16px;gap:8px">
+          <div class="card__t" style="font-size:13px;color:var(--danger)">⚠ Bo'sh kun</div>
+          <div style="font-size:13px;color:var(--ink-700);line-height:1.6">
+            <b>Yakshanba</b> — hech kim ishlamaydi. Talab bormi, tekshiring</div>
+        </div>
+      </div>
+    </div>
+    ${overlays()}${toastEl()}
+  </div>`;
+}
+
+/* ---------- S-45 KLINIKA SOZLAMALARI ---------- */
+function scSettings(){
+  return `<div class="app">
+    ${setTopbar('cfg')}
+    <div class="page">
+      <div class="page__hd">
+        <div><div class="page__ttl">Klinika sozlamalari</div>
+          <div class="page__sub">Tizim ishga tushishidan oldin to'ldiriladi</div></div>
+        <div class="spacer"></div>
+        <button class="btn btn--p" onclick="toast('Saqlandi','Sozlamalar barcha ekranlarga qo\\'llandi')">Saqlash</button>
+      </div>
+      <div class="scroll">
+        <div class="grid2">
+          <div class="card">
+            <div class="card__t">Klinika ma'lumoti</div>
+            <div class="field"><label class="field__l">Nomi (chek va TV ekranda chiqadi)</label>
+              <input class="input" value="Salomatlik klinikasi"></div>
+            <div class="row2">
+              <div class="field"><label class="field__l">Ish boshlanishi</label>
+                <input class="input mono" value="08:00"></div>
+              <div class="field"><label class="field__l">Ish tugashi</label>
+                <input class="input mono" value="19:00"></div>
+            </div>
+            <div class="field"><label class="field__l">Manzil</label>
+              <input class="input" value="Toshkent, Chilonzor 12, 4-uy"></div>
+          </div>
+
+          <div class="card">
+            <div class="card__t">Navbat qoidalari</div>
+            <div class="row2">
+              <div class="field"><label class="field__l">Raqam har kuni qaytadan boshlansinmi</label>
+                <div class="seg"><button class="is-active">Ha</button><button>Yo'q</button></div></div>
+              <div class="field"><label class="field__l">Maks qayta chaqirish</label>
+                <input class="input mono" value="2"></div>
+            </div>
+            <div class="field"><label class="field__l">Chaqirilgandan keyin kutish (daqiqa)</label>
+              <input class="input mono" value="3"></div>
+            <div class="note"><span>ℹ</span><span>Shu vaqt o'tgach «Kelmadi» tugmasi faollashadi.
+              Kelmagan bemor navbatdan chiqadi, <b>keyingilar raqami o'zgarmaydi</b>.</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__hd"><div><div class="card__t">Shifokor prefikslari, ranglari va kabinetlari</div>
+            <div class="card__s">Bu rang butun tizimda bir xil: ekran, chek, TV, kassa</div></div></div>
+          <table class="atbl">
+            <thead><tr><th>Shifokor</th><th>Prefiks</th><th>Rang</th><th>Kabinet</th>
+              <th class="r">Holat</th></tr></thead>
+            <tbody>
+              ${DOCTORS.map(d=>`<tr>
+                <td style="font-weight:500">${d.name} · ${d.spec}</td>
+                <td><span class="dpick__sq" style="background:${d.color};width:28px;height:28px;
+                  font-size:13px">${d.p}</span></td>
+                <td><div style="display:flex;gap:5px">
+                  ${[1,2,3,4,5,6,7,8].map(i=>`<i style="width:20px;height:20px;border-radius:5px;
+                    background:var(--doc-${i});display:block;
+                    ${d.color===`var(--doc-${i})`?'outline:2px solid var(--ink-900);outline-offset:2px':''}"></i>`).join('')}
+                </div></td>
+                <td><input class="input mono" style="width:90px;padding:6px 10px;font-size:13px"
+                  value="${d.room.replace('-kabinet','')}"></td>
+                <td class="r"><span class="badge badge--${d.paused?'w':'s'}">${d.paused?'Pauza':'Faol'}</span></td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <div class="card__t">SMS shabloni</div>
+            <div class="field"><label class="field__l">Navbat berilganda</label>
+              <textarea class="ta" style="min-height:64px;font-family:var(--font-data);font-size:13px">ShifoTop: navbatingiz {KOD}. Hozir: {HOZIR}. {LINK}</textarea></div>
+            <div class="field"><label class="field__l">Qayta ko'rik eslatmasi</label>
+              <textarea class="ta" style="min-height:64px;font-family:var(--font-data);font-size:13px">Ertaga soat {VAQT} da {SHIFOKOR} qabulida kutamiz. {KLINIKA}</textarea></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              ${['{KOD}','{HOZIR}','{VAQT}','{SHIFOKOR}','{KLINIKA}','{LINK}']
+                .map(t=>`<span class="chip" style="font-family:var(--font-data);font-size:11px;padding:4px 9px">${t}</span>`).join('')}
+            </div>
+            <div class="note"><span>ℹ</span><span>Kirill yozuvda SMS 70 belgidan oshsa
+              <b>2 segment</b> sifatida hisoblanadi — narx ikki barobar.</span></div>
+          </div>
+
+          <div class="card">
+            <div class="card__t">Qurilmalar</div>
+            <div class="kv"><span class="kv__k">Chek printeri</span>
+              <span class="kv__v"><span class="badge badge--s">✓ Ulangan</span> XP-58IIH</span></div>
+            <div class="kv"><span class="kv__k">Chek kengligi</span>
+              <span class="kv__v">58 mm</span></div>
+            <div class="kv"><span class="kv__k">TV ekran</span>
+              <span class="kv__v"><span class="badge badge--s">✓ Ulangan</span> Kutish zali</span></div>
+            <div class="kv"><span class="kv__k">Chaqiruv ovozi</span>
+              <span class="kv__v">Yoqilgan · 70%</span></div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn btn--s" style="flex:1"
+                onclick="toast('Test cheki yuborildi','Printerdan chiqishini tekshiring')">⎙ Test cheki</button>
+              <button class="btn btn--s" style="flex:1" onclick="go('s51')">TV ulash</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    ${overlays()}${toastEl()}
+  </div>`;
+}
+
+/* ---------- S-43b XODIMLAR VA ROLLAR ---------- */
+const STAFF=[
+  {n:'Rustam Saidov',ph:'+998 90 111-22-33',r:['Rahbar'],st:1,last:'Bugun 08:12'},
+  {n:'Anora Aliyeva',ph:'+998 90 555-11-22',r:['Registratura','Kassir'],st:1,last:'Bugun 08:54'},
+  {n:'Dilnoza Karimova',ph:'+998 91 222-33-44',r:['Kassir'],st:1,last:'Bugun 09:01'},
+  {n:'Alisher Karimov',ph:'+998 93 333-44-55',r:['Shifokor'],st:1,last:'Bugun 08:47'},
+  {n:'Nilufar Saidova',ph:'+998 94 444-55-66',r:['Shifokor'],st:1,last:'Bugun 09:58'},
+  {n:'Bekzod To\'rayev',ph:'+998 97 555-66-77',r:['Shifokor'],st:1,last:'Bugun 07:52'},
+  {n:'Dilbar Usmonova',ph:'+998 99 666-77-88',r:['Shifokor'],st:0,last:'11-avgust'},
+  {n:'Zarina Yusupova',ph:'+998 88 777-88-99',r:['Buxgalter'],st:1,last:'12-avgust'},
+];
+const PERMS=[
+  ['Navbat berish',[0,1,0,0,0]],
+  ['Qabul yozuvi',[0,0,1,0,0]],
+  ['To\'lov qabul qilish',[0,0,0,1,0]],
+  ['Smena yopish',[0,0,0,1,0]],
+  ['Hisobotlar',[1,0,0,0,1]],
+  ['Xodim qo\'shish',[1,0,0,0,0]],
+  ['Narxlarni o\'zgartirish',[1,0,0,0,0]],
+  ['Amallar jurnali',[1,0,0,0,1]],
+];
+const ROLES=['Rahbar','Registratura','Shifokor','Kassir','Buxgalter'];
+
+function scStaff(){
+  return `<div class="app">
+    ${setTopbar('staff')}
+    <div class="page">
+      <div class="page__hd">
+        <div><div class="page__ttl">Xodimlar va rollar</div>
+          <div class="page__sub">Shifokor qo'shilmasa — navbat kolonkasi paydo bo'lmaydi</div></div>
+        <div class="spacer"></div>
+        <div class="search" style="width:280px"><span style="color:var(--ink-500)">⌕</span>
+          <input placeholder="Xodim qidirish"></div>
+        <button class="btn btn--p">+ Xodim qo'shish</button>
+      </div>
+      <div class="scroll">
+        <div class="card" style="padding:0">
+          <table class="atbl">
+            <thead><tr><th>F.I.Sh</th><th>Telefon</th><th>Rollar</th>
+              <th>Oxirgi kirish</th><th class="r">Holat</th><th class="r"></th></tr></thead>
+            <tbody>
+              ${STAFF.map(s=>`<tr>
+                <td><div class="dotname">
+                  <span class="avatar" style="width:28px;height:28px;font-size:11px;
+                    background:${s.st?'var(--blue-600)':'var(--ink-300)'}">${s.n.split(' ').map(w=>w[0]).join('')}</span>
+                  <span style="font-weight:600">${s.n}</span></div></td>
+                <td class="mono cell--sub">${s.ph}</td>
+                <td><div style="display:flex;gap:5px;flex-wrap:wrap">
+                  ${s.r.map(r=>`<span class="badge badge--${r==='Rahbar'?'d':r==='Shifokor'?'i':'n'}">${r}</span>`).join('')}
+                </div></td>
+                <td class="cell--sub">${s.last}</td>
+                <td class="r"><span class="badge badge--${s.st?'s':'n'}">${s.st?'Faol':'Faolsiz'}</span></td>
+                <td class="r"><button class="btn--g" style="font-size:13px">Tahrirlash</button></td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card__hd"><div><div class="card__t">Ruxsatlar matritsasi</div>
+            <div class="card__s">Ruxsat yo'q element ekranda umuman ko'rsatilmaydi — «bor, lekin senga emas» hissi bo'lmaydi</div></div></div>
+          <table class="atbl">
+            <thead><tr><th>Amal</th>
+              ${ROLES.map(r=>`<th style="text-align:center">${r}</th>`).join('')}</tr></thead>
+            <tbody>
+              ${PERMS.map(([a,p])=>`<tr>
+                <td style="font-weight:500">${a}</td>
+                ${p.map(v=>`<td style="text-align:center;font-size:16px;
+                  color:${v?'var(--success)':'var(--ink-300)'}">${v?'✓':'—'}</td>`).join('')}
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    ${overlays()}${toastEl()}
+  </div>`;
+}
+
+/* ---------- S-44b XIZMATLAR VA NARXLAR (CRUD) ---------- */
+function scPriceList(){
+  return `<div class="app">
+    ${setTopbar('price')}
+    <div class="page">
+      <div class="page__hd">
+        <div><div class="page__ttl">Xizmatlar va narxlar</div>
+          <div class="page__sub">Bu ro'yxatdan shifokor S-21 da xizmat tanlaydi</div></div>
+        <div class="spacer"></div>
+        <div class="search" style="width:280px"><span style="color:var(--ink-500)">⌕</span>
+          <input placeholder="Xizmat qidirish"></div>
+        <button class="btn btn--p">+ Xizmat qo'shish</button>
+      </div>
+
+      <div class="alert alert--w">
+        <span>⚠</span><span>Narx o'zgartirilsa — <b>eski hisoblar o'zgarmaydi</b>.
+        Har bir qabul yozuvi o'sha kungi narxni ichida saqlaydi. Bu buxgalteriya uchun majburiy.</span>
+      </div>
+
+      <div class="card" style="padding:0;flex:1;overflow:hidden;display:flex;flex-direction:column">
+        <div style="overflow-y:auto;flex:1">
+        <table class="atbl">
+          <thead><tr><th>Xizmat</th><th>Bo'lim</th><th class="r">Narx</th>
+            <th class="r">Davomiyligi</th><th class="r">Oxirgi o'zgarish</th>
+            <th class="r">Holat</th><th class="r"></th></tr></thead>
+          <tbody>
+            ${SRV_STATS.map((s,i)=>{
+              const dep=['Terapiya','Kardiologiya','Stomatologiya','Diagnostika','Kardiologiya',
+                'Stomatologiya','Laboratoriya','Diagnostika','Kardiologiya','Kardiologiya'][i];
+              const dur=[15,20,30,25,10,45,5,10,30,'24 soat'][i];
+              return `<tr>
+              <td style="font-weight:500">${s.n}</td>
+              <td><span class="badge badge--n">${dep}</span></td>
+              <td class="r"><input class="input mono" style="width:120px;padding:6px 10px;
+                font-size:13px;text-align:right" value="${money(s.price)}"></td>
+              <td class="r mono cell--sub">${typeof dur==='number'?dur+' daq':dur}</td>
+              <td class="r cell--sub">21-iyun</td>
+              <td class="r"><span class="badge badge--${s.cnt<10?'w':'s'}">${s.cnt<10?'Kam talab':'Faol'}</span></td>
+              <td class="r"><button class="btn--g" style="font-size:13px">Tarix</button></td>
+            </tr>`}).join('')}
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+    ${overlays()}${toastEl()}
+  </div>`;
+}
+
+/* ---------- S-46 AMALLAR JURNALI ---------- */
+const AUDIT=[
+  ['13:04','Dilnoza K.','To\'lov qabul qilindi','K-09 · 200 000 · naqd','s'],
+  ['13:02','Dr. Karimov A.','Qabul yakunlandi','K-09 · qayta ko\'rik 28-avgust','n'],
+  ['12:58','Dr. Karimov A.','Qabul boshlandi','K-09','n'],
+  ['12:47','Dr. Karimov A.','Bemor chaqirildi','K-09 · TV ekranga yuborildi','n'],
+  ['12:41','Anora A.','Navbat bekor qilindi','S-06 · sabab: bemor o\'zi rad etdi','w'],
+  ['12:38','Anora A.','Navbat berildi','S-10 · Ismoilov K. · chek + SMS','n'],
+  ['12:31','Rustam S.','Narx o\'zgartirildi','EXO-kardiografiya: 230 000 → 250 000','w'],
+  ['12:20','Dr. Saidova N.','Kelmadi deb belgilandi','S-06 · 2 marta chaqirilgan','w'],
+  ['11:52','Dilnoza K.','To\'lov qaytarildi','T-08 · −90 000 · sabab: xizmat ko\'rsatilmadi','d'],
+  ['09:01','Dilnoza K.','Smena ochildi','Boshlang\'ich naqd: 0','n'],
+  ['08:54','Anora A.','Tizimga kirdi','192.168.1.42 · Chrome','n'],
+];
+function scAudit(){
+  return `<div class="app">
+    ${setTopbar('audit')}
+    <div class="page">
+      <div class="page__hd">
+        <div><div class="page__ttl">Amallar jurnali</div>
+          <div class="page__sub">O'chirilmaydi va tahrirlanmaydi — bahs chiqqanda yagona dalil</div></div>
+        <div class="spacer"></div>
+        <div class="period"><button class="is-active">Bugun</button>
+          <button>7 kun</button><button>Oy</button></div>
+        <button class="btn btn--s">⤓ Eksport</button>
+      </div>
+
+      <div class="chips">
+        <button class="chip is-active">Barchasi <span class="chip__n">247</span></button>
+        <button class="chip">To'lovlar <span class="chip__n">23</span></button>
+        <button class="chip">Bekor qilishlar <span class="chip__n">4</span></button>
+        <button class="chip">Narx o'zgarishi <span class="chip__n">1</span></button>
+        <button class="chip">Kirish/chiqish <span class="chip__n">11</span></button>
+      </div>
+
+      <div class="card" style="padding:0;flex:1;overflow:hidden;display:flex;flex-direction:column">
+        <div style="overflow-y:auto;flex:1">
+        <table class="atbl">
+          <thead><tr><th style="width:90px">Vaqt</th><th style="width:170px">Kim</th>
+            <th style="width:230px">Amal</th><th>Tafsilot</th></tr></thead>
+          <tbody>
+            ${AUDIT.map(([t,who,act,det,lvl])=>`<tr>
+              <td class="mono cell--sub">${t}</td>
+              <td style="font-weight:500">${who}</td>
+              <td><span class="badge badge--${lvl}">${act}</span></td>
+              <td class="cell--sub">${det}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+    ${overlays()}${toastEl()}
+  </div>`;
+}
+
+/* ---------- S-18 KUNNI YOPISH ---------- */
+function scDayClose(){
+  const items=[
+    ['Chaqirilmagan navbatlar',3,'w',"K-12, K-13, T-15 — bugun umuman chaqirilmagan",
+     "Kelmadi deb belgilash yoki ertangi kunga ko'chirish"],
+    ['Yopilmagan qabullar',1,'d',"T-11 · Qodirov S. — 09:12 dan beri «qabulda»",
+     "Shifokor yakunlamagan. Qabul yozuvisiz to'lov ham yo'q"],
+    ["To'lanmagan hisoblar",2,'w',"K-09 (200 000) va S-06 (340 000)",
+     "Bemor to'lamay ketganmi yoki kassir kiritmaganmi"],
+    ["Bajarilmagan qo'ng'iroqlar",7,'w',"12 tadan 5 tasi bajarilgan",
+     "Ertangi ro'yxatga qo'shiladi, urinishlar soni oshadi"],
+    ['Smena yopilmagan',1,'d',"Dilnoza K. · 09:00 dan beri ochiq",
+     "Smena yopilmasa ertangi kassa hisobi aralashadi"],
+  ];
+  return `<div class="app">
+    ${topbar('navbat')}
+    <div class="page">
+      <div class="page__hd">
+        <div><div class="page__ttl">Kunni yopish</div>
+          <div class="page__sub">14-avgust · Osilib qolgan yozuvlar tozalanmasa ertaga aralashadi</div></div>
+        <div class="spacer"></div>
+        <div class="card" style="padding:12px 16px;gap:4px;width:220px">
+          <div class="kpi__l">Diqqat talab qiladi</div>
+          <div class="kpi__v" style="color:var(--warning);margin:0">14 ta</div></div>
+      </div>
+
+      <div class="scroll">
+        ${items.map(([t,n,lvl,det,why])=>`
+        <div class="card" style="padding:16px 20px;gap:10px">
+          <div class="card__hd">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span class="badge badge--${lvl}" style="font-size:14px;padding:5px 11px;
+                font-weight:700">${n}</span>
+              <div><div class="card__t">${t}</div>
+                <div class="card__s">${det}</div></div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn--s">Ko'rish</button>
+              <button class="btn btn--p" onclick="toast('${t}','Hal qilindi')">Hal qilish</button>
+            </div>
+          </div>
+          <div class="alert alert--${lvl==='d'?'d':'w'}" style="font-size:12px;padding:9px 12px">
+            <span>→</span><span>${why}</span></div>
+        </div>`).join('')}
+
+        <div class="card" style="background:var(--ink-900);border:none">
+          <div style="display:flex;align-items:center;gap:16px">
+            <div style="flex:1">
+              <div style="font-size:16px;font-weight:600;color:#fff">Kunni yopish</div>
+              <div style="font-size:13px;color:#94A3B8;margin-top:4px;line-height:1.5">
+                Yopilgach bugungi navbatlar arxivga o'tadi, ertangi raqamlar 1 dan boshlanadi.
+                Hal qilinmagan yozuvlar hisobotda «hal qilinmagan» deb qoladi.</div>
+            </div>
+            <button class="btn btn--p" onclick="go('s10');toast('Kun yopildi','Ertangi navbat 1 dan boshlanadi')">
+              Kunni yopish</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    ${overlays()}${toastEl()}
+  </div>`;
+}
+
+/* ============================================================
+   BEMOR MOBIL EKRANLARI (SMS havolasi)
+   ============================================================ */
+function scPatientQueue(){
+  return `<div style="width:390px;height:844px;background:var(--canvas);display:flex;
+    flex-direction:column;font-family:var(--font-ui)">
+    <div style="padding:16px 20px;background:var(--surface);border-bottom:1px solid var(--ink-200);
+      display:flex;align-items:center;justify-content:space-between">
+      <div style="font-family:var(--font-display);font-weight:800;font-size:16px">ShifoTop</div>
+      <span class="conn conn--live" style="font-size:11px;padding:4px 8px">
+        <i class="conn__dot"></i>Jonli</span>
+    </div>
+
+    <div style="flex:1;padding:20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto">
+      <div style="text-align:center;padding:28px 20px;background:var(--surface);
+        border-radius:var(--r-card);border:1px solid var(--ink-200)">
+        <div style="font-size:12px;font-weight:600;letter-spacing:.5px;color:var(--ink-500)">
+          SIZNING NAVBATINGIZ</div>
+        <div style="font-family:var(--font-display);font-size:76px;font-weight:800;
+          line-height:1;margin-top:10px;letter-spacing:-.03em;font-variant-numeric:tabular-nums">K-14</div>
+        <div style="font-size:15px;font-weight:600;margin-top:12px">Dr. Karimov A. · 2-kabinet</div>
+        <div style="font-size:13px;color:var(--ink-500);margin-top:4px">Salomatlik klinikasi</div>
+      </div>
+
+      <div style="display:flex;gap:12px">
+        <div style="flex:1;padding:16px;background:var(--surface);border:1px solid var(--ink-200);
+          border-radius:var(--r-card);text-align:center">
+          <div style="font-size:11px;color:var(--ink-500);font-weight:600">HOZIR</div>
+          <div class="mono" style="font-size:28px;font-weight:700;margin-top:6px;
+            color:var(--blue-600)">K-09</div></div>
+        <div style="flex:1;padding:16px;background:var(--surface);border:1px solid var(--ink-200);
+          border-radius:var(--r-card);text-align:center">
+          <div style="font-size:11px;color:var(--ink-500);font-weight:600">OLDINGIZDA</div>
+          <div style="font-size:28px;font-weight:700;margin-top:6px">4</div></div>
+      </div>
+
+      <div style="padding:18px;background:var(--blue-600);border-radius:var(--r-card);color:#fff">
+        <div style="font-size:13px;opacity:.85">Taxminiy kutish vaqti</div>
+        <div style="font-family:var(--font-display);font-size:40px;font-weight:800;
+          line-height:1.1;margin-top:4px">~24 daqiqa</div>
+        <div style="font-size:12px;opacity:.75;margin-top:8px;line-height:1.5">
+          Bu taxminiy hisob. Navbatingiz yaqinlashganda SMS yuboramiz.</div>
+      </div>
+
+      <div style="padding:16px;background:var(--surface);border:1px solid var(--ink-200);
+        border-radius:var(--r-card)">
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px">Navbat holati</div>
+        ${[['K-09','Qabulda','ip'],['K-10','Kutmoqda','w'],['K-11','Kutmoqda','w'],
+           ['K-12','Kutmoqda','w'],['K-13','Kutmoqda','w'],['K-14','Siz','me']]
+          .map(([c,s,t])=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;
+            ${t==='me'?'background:var(--blue-50);margin:0 -8px;padding:10px 8px;border-radius:8px':''}">
+            <span class="mono" style="font-size:14px;font-weight:${t==='me'?'700':'500'};
+              color:${t==='ip'?'var(--teal)':t==='me'?'var(--blue-600)':'var(--ink-900)'}">${c}</span>
+            <span style="flex:1;font-size:13px;color:var(--ink-500);
+              ${t==='me'?'font-weight:600;color:var(--blue-600)':''}">${s}</span>
+            ${t==='ip'?'<span class="badge badge--t">Hozir</span>':''}
+          </div>`).join('')}
+      </div>
+
+      <div style="padding:14px;background:var(--warning-bg);border-radius:var(--r-card);
+        font-size:12px;color:var(--warning);line-height:1.5">
+        ⚠ Navbatingiz kelganda 3 daqiqa ichida kirmasangiz, keyingi bemor chaqiriladi.
+      </div>
+    </div>
+
+    <div style="padding:16px 20px;background:var(--surface);border-top:1px solid var(--ink-200);
+      text-align:center;font-size:12px;color:var(--ink-500)">
+      Sahifa avtomatik yangilanadi · shifotop.uz</div>
+  </div>`;
+}
+
+function scReview(){
+  return `<div style="width:390px;height:844px;background:var(--canvas);display:flex;
+    flex-direction:column;font-family:var(--font-ui)">
+    <div style="padding:16px 20px;background:var(--surface);border-bottom:1px solid var(--ink-200)">
+      <div style="font-family:var(--font-display);font-weight:800;font-size:16px">ShifoTop</div>
+    </div>
+
+    <div style="flex:1;padding:24px 20px;display:flex;flex-direction:column;gap:20px;overflow-y:auto">
+      <div style="text-align:center">
+        <div style="width:56px;height:56px;border-radius:16px;background:var(--success-bg);
+          display:grid;place-items:center;font-size:26px;margin:0 auto">💚</div>
+        <div style="font-family:var(--font-display);font-size:22px;font-weight:800;
+          margin-top:14px;line-height:1.3">Tuzalganingizdan<br>xursandmiz!</div>
+        <div style="font-size:14px;color:var(--ink-500);margin-top:10px;line-height:1.55">
+          Tajribangiz haqida qisqacha yozib qoldirsangiz, boshqa bemorlarga
+          yordam bergan bo'lasiz.</div>
+      </div>
+
+      <div style="padding:16px;background:var(--surface);border:1px solid var(--ink-200);
+        border-radius:var(--r-card);display:flex;gap:12px;align-items:center">
+        <span class="dpick__sq" style="background:var(--doc-1);width:44px;height:44px;font-size:18px">K</span>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:600">Dr. Karimov Alisher</div>
+          <div style="font-size:12px;color:var(--ink-500);margin-top:2px">
+            Kardiolog · Salomatlik klinikasi</div>
+          <div style="font-size:12px;color:var(--ink-500)">Tashrif: 14-avgust</div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px;text-align:center">
+          Qabulni qanday baholaysiz?</div>
+        <div style="display:flex;gap:8px;justify-content:center">
+          ${[1,2,3,4,5].map(i=>`<span style="font-size:38px;
+            filter:${i<=5?'none':'grayscale(1)'};opacity:${i<=5?'1':'.3'}">⭐</span>`).join('')}
+        </div>
+        <div style="text-align:center;font-size:13px;color:var(--success);font-weight:600;
+          margin-top:8px">A'lo</div>
+      </div>
+
+      <div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px">Nima yoqdi?</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${[['Tushuntirib berdi',1],['Kutish kam',1],['Toza va qulay',0],
+             ['Narx adolatli',0],['Xushmuomala',1],['Natija bo\'ldi',0]]
+            .map(([t,a])=>`<span class="chip ${a?'is-active':''}" style="font-size:12px">${t}</span>`).join('')}
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field__l">Izoh (ixtiyoriy)</label>
+        <textarea class="ta" style="min-height:90px"
+          placeholder="Tajribangiz haqida yozing..."></textarea>
+      </div>
+
+      <div style="padding:12px 14px;background:var(--info-bg);border-radius:var(--r-input);
+        font-size:12px;color:var(--info);line-height:1.5">
+        ℹ Izohingiz ShifoTop'da klinika sahifasida ko'rinadi. Ismingiz qisqartirilib
+        chiqadi: <b>Anvar A.</b>
+      </div>
+    </div>
+
+    <div style="padding:16px 20px;background:var(--surface);border-top:1px solid var(--ink-200);
+      display:flex;flex-direction:column;gap:8px">
+      <button class="btn btn--p" style="width:100%;min-height:48px"
+        onclick="toast('Rahmat!','Izohingiz ShifoTop sahifasida chiqdi')">Izohni yuborish</button>
+      <button class="btn--g" style="width:100%;padding:10px;font-size:13px">Hozir emas</button>
+    </div>
+  </div>`;
+}
+
 /* ---------- ROUTER ---------- */
 const SCREENS = {
   flow:  {t:'Oqim xaritasi', w:1440, r:()=>scFlow()},
@@ -2609,6 +3241,14 @@ const SCREENS = {
   s40:   {t:'S-40 · Dashboard (rahbar)', w:1440, r:()=>scDash()},
   s41:   {t:'S-41 · Shifokorlar samaradorligi', w:1440, r:()=>scDocStats()},
   s44:   {t:'S-44 · Xizmatlar tahlili', w:1440, r:()=>scServices()},
+  s47:   {t:'S-47 · Shifokorlar jadvali', w:1440, r:()=>scSchedule()},
+  s45:   {t:'S-45 · Klinika sozlamalari', w:1440, r:()=>scSettings()},
+  s43b:  {t:'S-43b · Xodimlar va rollar', w:1440, r:()=>scStaff()},
+  s44b:  {t:'S-44b · Xizmatlar va narxlar', w:1440, r:()=>scPriceList()},
+  s46:   {t:'S-46 · Amallar jurnali', w:1440, r:()=>scAudit()},
+  s18:   {t:'S-18 · Kunni yopish', w:1440, r:()=>scDayClose()},
+  s70:   {t:'S-70 · Bemor · navbat holati', w:390, mob:1, r:()=>scPatientQueue()},
+  s71:   {t:'S-71 · Bemor · izoh qoldirish', w:390, mob:1, r:()=>scReview()},
   s50:   {t:'S-50 · TV navbat ekrani', w:1920, tv:1, r:()=>scTV(false)},
   s50b:  {t:"S-50b · TV — navbat bo'sh", w:1920, tv:1, r:()=>scTV(true)},
   s51:   {t:'S-51 · TV ekranni ulash', w:1920, tv:1, r:()=>scPairing()},
@@ -2670,7 +3310,7 @@ function render(){
   frame.className = 'frame' + (sc.tv?' frame--tv':'');
   frame.innerHTML = sc.r();
   document.getElementById('caption').innerHTML =
-    `<span>${sc.t}</span><span class="mono">${sc.w}×${sc.tv?1080:(S.screen==='flow'?'auto':900)}</span>`;
+    `<span>${sc.t}</span><span class="mono">${sc.w}×${sc.tv?1080:sc.mob?844:(S.screen==='flow'?'auto':900)}</span>`;
   fit();
   renderNav();
   renderStatebar();
@@ -2683,7 +3323,7 @@ function fit(){
   const frame=document.getElementById('frame');
   frame.style.width = sc.w+'px';
   frame.style.transform = 'none';
-  const h = sc.tv ? 1080 : (S.screen==='flow' ? frame.offsetHeight : 900);
+  const h = sc.tv ? 1080 : sc.mob ? 844 : (S.screen==='flow' ? frame.offsetHeight : 900);
   frame.style.transform = `scale(${scale})`;
   const inner = document.querySelector('.stage__inner');
   inner.style.width = (sc.w*scale)+'px';
